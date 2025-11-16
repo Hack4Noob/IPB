@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turmas - Professor | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/professor/css/turmas.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <!-- Link de salto para acessibilidade -->
+  <a class="skip-link sr-only" href="#main">Pular para o conteúdo</a>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li><a href="/professor/dashboard.html">Dashboard</a></li>
+          <li><a href="/professor/turmas.html" class="active">Turmas</a></li>
+          <li><a href="/professor/notas.html">Notas</a></li>
+          <li><a href="/professor/presencas.html">Presenças</a></li>
+          <li><a href="/professor/avisos.html">Avisos</a></li>
+          <li><a href="/professor/estatisticas.html">Estatísticas</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <section class="page-header" id="main" tabindex="-1">
+    <div class="container">
+      <h1>Minhas Turmas</h1>
+      <p>Visualize suas turmas atribuídas.</p>
+    </div>
+  </section>
+  <section class="table-container">
+    <div class="container">
+      <h2>Lista de Turmas</h2>
+      <div class="filter-container">
+        <select id="filter-curso">
+          <option value="">Todos os Cursos</option>
+        </select>
+        <select id="filter-trimestre">
+          <option value="">Todos os Trimestres</option>
+          <option value="1">1º Trimestre</option>
+          <option value="2">2º Trimestre</option>
+          <option value="3">3º Trimestre</option>
+        </select>
+        <button id="filter-button">Filtrar</button>
+        <button id="export-csv">Exportar CSV</button>
+      </div>
+      <div id="loading-spinner" class="loading-spinner" aria-live="polite" style="display:none">Carregando turmas...</div>
+      <div id="error-message" class="error-message" role="alert" aria-live="assertive" tabindex="-1" style="display:none"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Curso</th>
+            <th>Alunos</th>
+            <th>Trimestre</th>
+          </tr>
+        </thead>
+        <tbody id="turmas-table"></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js" defer></script>
+  <script src="/js/firebase-config.js" defer></script>
+  <script src="/js/inicialize.js" defer></script>
+  <script src="/js/ui-manager.js" defer></script>
+  <script src="/js/auth-manager.js" defer></script>
+  <script src="/js/content-manager.js" defer></script>
+  <script src="/js/data-manager.js" defer></script>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const turmasTable = document.getElementById("turmas-table");
+    const filterCurso = document.getElementById("filter-curso");
+    const filterTrimestre = document.getElementById("filter-trimestre");
+    const filterButton = document.getElementById("filter-button");
+    const exportCsvButton = document.getElementById("export-csv");
+    const errorMessage = document.getElementById("error-message");
+    const loadingSpinner = document.getElementById("loading-spinner");
+
+    function showLoading() { loadingSpinner.style.display = 'block'; }
+    function hideLoading() { loadingSpinner.style.display = 'none'; }
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorMessage.style.display = 'block';
+      errorMessage.setAttribute('tabindex','-1');
+      errorMessage.focus();
+    }
+    function hideError() {
+      errorMessage.textContent = '';
+      errorMessage.style.display = 'none';
+      errorMessage.removeAttribute('tabindex');
+    }
+    document.addEventListener('input', () => hideError());
+
+    async function loadCursos() {
+      filterCurso.innerHTML = `<option value="">Todos os Cursos</option>`;
+      try {
+        const cursosSnap = await db.collection("cursos").get();
+        cursosSnap.forEach(doc => {
+          const curso = doc.data();
+          filterCurso.innerHTML += `<option value="${doc.id}">${curso.nome}</option>`;
+        });
+      } catch (err) {
+        showError('Erro ao carregar cursos: ' + err.message);
+      }
+    }
+
+    async function loadTurmas(cursoId = "", trimestre = "") {
+      showLoading();
+      hideError();
+      turmasTable.innerHTML = '';
+      try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('Usuário não autenticado.');
+        let query = db.collection("turmas").where("professorId", "==", user.uid);
+        if (cursoId) query = query.where("cursoId", "==", cursoId);
+        if (trimestre) query = query.where("trimestre", "==", trimestre);
+        const turmasSnap = await query.get();
+        if (turmasSnap.empty) {
+          turmasTable.innerHTML = '<tr><td colspan="4">Nenhuma turma encontrada.</td></tr>';
+          hideLoading();
+          return;
+        }
+        const rows = await Promise.all(turmasSnap.docs.map(async doc => {
+          const turma = doc.data();
+          const cursoDoc = await db.collection("cursos").doc(turma.cursoId).get();
+          const alunosSnap = await db.collection("alunos").where("curso", "==", turma.cursoId).get();
+          return {
+            nome: turma.nome,
+            curso: cursoDoc.exists ? cursoDoc.data().nome : 'Curso removido',
+            alunos: alunosSnap.size,
+            trimestre: turma.trimestre || 'N/A'
+          };
+        }));
+        turmasTable.innerHTML = rows.map(r => `
+          <tr class="slide-in">
+            <td>${r.nome}</td>
+            <td>${r.curso}</td>
+            <td>${r.alunos}</td>
+            <td>${r.trimestre}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        showError('Erro ao carregar turmas: ' + err.message);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function escapeCsvField(v) {
+      if (v == null) return '';
+      const s = String(v);
+      if (/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+      return s;
+    }
+
+    let exportLock = false;
+    exportCsvButton.addEventListener('click', async () => {
+      if (exportLock) return;
+      exportLock = true;
+      showLoading();
+      try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('Usuário não autenticado.');
+        let query = db.collection("turmas").where("professorId", "==", user.uid);
+        if (filterCurso.value) query = query.where("cursoId", "==", filterCurso.value);
+        if (filterTrimestre.value) query = query.where("trimestre", "==", filterTrimestre.value);
+        const turmasSnap = await query.get();
+        const rows = await Promise.all(turmasSnap.docs.map(async doc => {
+          const turma = doc.data();
+          const cursoDoc = await db.collection("cursos").doc(turma.cursoId).get();
+          const alunosSnap = await db.collection("alunos").where("curso", "==", turma.cursoId).get();
+          return [
+            turma.nome,
+            cursoDoc.exists ? cursoDoc.data().nome : 'Curso removido',
+            alunosSnap.size,
+            turma.trimestre || 'N/A'
+          ];
+        }));
+        if (rows.length === 0) {
+          showError('Nenhuma turma disponível para exportação.');
+          hideLoading();
+          exportLock = false;
+          return;
+        }
+        const header = ['Nome','Curso','Alunos','Trimestre'];
+        const csv = [header.map(escapeCsvField).join(','), ...rows.map(r => r.map(escapeCsvField).join(','))].join('\n');
+        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'turmas.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        showError('Erro ao exportar CSV: ' + err.message);
+      } finally {
+        hideLoading();
+        exportLock = false;
+      }
+    });
+
+    filterButton.addEventListener('click', () => {
+      loadTurmas(filterCurso.value, filterTrimestre.value);
+    });
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        loadCursos();
+        loadTurmas();
+      } else {
+        window.location.href = '/login.html';
+      }
+    });
+  </script>
+</body>
+</html>

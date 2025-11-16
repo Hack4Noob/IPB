@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - IPG</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/chat.css">
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Added modern chat layout with header, messages area, and input section -->
+        
+        <!-- Chat Header -->
+        <header class="chat-header">
+            <div class="header-left">
+                <button id="back-btn" class="back-btn" aria-label="Voltar">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="chat-info">
+                    <h1 id="chat-title">Chat</h1>
+                    <span id="online-status" class="online-status"></span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button id="info-btn" class="icon-btn" aria-label="Informações do chat">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+                <button id="menu-btn" class="icon-btn" aria-label="Mais opções">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Messages Container -->
+        <div class="messages-wrapper">
+            <div id="messages-container" class="messages-container" role="log" aria-label="Histórico de mensagens">
+                <div class="messages-empty">
+                    <i class="fas fa-comments"></i>
+                    <p>Nenhuma mensagem ainda. Comece uma conversa!</p>
+                </div>
+            </div>
+            
+            <!-- Typing Indicator -->
+            <div id="typing-indicator" class="typing-indicator hidden">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <span id="typing-user"></span> está digitando...
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <form id="message-form" class="message-form">
+                <div class="input-wrapper">
+                    <input
+                        type="text"
+                        id="message-input"
+                        class="message-input"
+                        placeholder="Digite uma mensagem..."
+                        autocomplete="off"
+                        aria-label="Campo de mensagem"
+                    />
+                    <button type="button" id="emoji-btn" class="emoji-btn" aria-label="Adicionar emoji">
+                        <i class="fas fa-smile"></i>
+                    </button>
+                </div>
+                <button type="submit" id="send-btn" class="send-btn" aria-label="Enviar mensagem">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Message Context Menu -->
+    <div id="context-menu" class="context-menu hidden">
+        <button class="context-menu-item" data-action="edit" aria-label="Editar mensagem">
+            <i class="fas fa-edit"></i> Editar
+        </button>
+        <button class="context-menu-item" data-action="react" aria-label="Reagir à mensagem">
+            <i class="fas fa-smile"></i> Reagir
+        </button>
+        <button class="context-menu-item" data-action="reply" aria-label="Responder mensagem">
+            <i class="fas fa-reply"></i> Responder
+        </button>
+        <button class="context-menu-item delete" data-action="delete" aria-label="Deletar mensagem">
+            <i class="fas fa-trash"></i> Deletar
+        </button>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+    <script src="/js/firebase-config.js"></script>
+    <script src="/js/chat-manager.js"></script>
+</body>
+</html>

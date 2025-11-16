@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios - Secretaria | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/secretaria/css/relatorios.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+      <h1>IPG - Gestão Escolar</h1>
+    </div>
+    <nav>
+      <ul id="nav-list">
+        <li><a href="/secretaria/dashboard.html">Dashboard</a></li>
+        <li><a href="/secretaria/alunos.html">Alunos</a></li>
+        <li><a href="/secretaria/documentos.html">Documentos</a></li>
+        <li><a href="/secretaria/pagamentos.html">Pagamentos</a></li>
+        <li><a href="/secretaria/relatorios.html" class="active">Relatórios</a></li>
+        <li><a href="/logout.html">Sair</a></li>
+      </ul>
+    </nav>
+    <div class="mobile-menu">
+      <i class="fas fa-bars"></i>
+    </div>
+  </div>
+</header>
+<section class="page-header">
+  <div class="container">
+    <h1>Relatórios</h1>
+    <p>Visualize relatórios sobre pagamentos pendentes.</p>
+  </div>
+</section>
+<section class="table-container">
+  <div class="container">
+    <h2>Relatório de Pagamentos Pendentes</h2>
+    <div class="filter-container">
+      <select id="filter-aluno">
+        <option value="">Todos os Alunos</option>
+      </select>
+      <input type="date" id="filter-data">
+      <button id="filter-button" aria-label="Filtrar relatórios">Filtrar</button>
+      <button id="export-csv" aria-label="Exportar para CSV">Exportar CSV</button>
+    </div>
+    <div id="loading-spinner">Carregando relatórios...</div>
+    <div id="error-message" class="error-message"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>Aluno</th>
+          <th>Valor</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody id="relatorios-table"></tbody>
+    </table>
+  </div>
+</section>
+<footer>
+  <div class="container">
+    <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+  </div>
+</footer>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-config.js"></script>
+<script src="/js/inicialize.js"></script>
+<script src="/js/ui-manager.js"></script>
+<script src="/js/auth-manager.js"></script>
+<script src="/js/content-manager.js"></script>
+<script src="/js/data-manager.js"></script>
+<script>
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+  const relatoriosTable = document.getElementById("relatorios-table");
+  const filterAluno = document.getElementById("filter-aluno");
+  const filterData = document.getElementById("filter-data");
+  const filterButton = document.getElementById("filter-button");
+  const exportCsvButton = document.getElementById("export-csv");
+  const errorMessage = document.getElementById("error-message");
+  const loadingSpinner = document.getElementById("loading-spinner");
+
+  function loadAlunos() {
+    db.collection("alunos").get().then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        const aluno = doc.data();
+        filterAluno.innerHTML += `<option value="${doc.id}">${aluno.nome}</option>`;
+      });
+    }).catch(error => {
+      errorMessage.textContent = 'Erro ao carregar alunos: ' + error.message;
+      errorMessage.style.display = 'block';
+    });
+  }
+
+  function loadRelatorios(alunoId = "", data = "") {
+    loadingSpinner.style.display = 'block';
+    errorMessage.style.display = 'none';
+    relatoriosTable.innerHTML = '';
+    let query = db.collection("pagamentos").where("status", "==", "pendente");
+    if (alunoId) query = query.where("alunoId", "==", alunoId);
+    if (data) query = query.where("data", ">=", data).where("data", "<=", data + "T23:59:59");
+    query.get().then((querySnapshot) => {
+      if (querySnapshot.empty) {
+        relatoriosTable.innerHTML = '<tr><td colspan="3">Nenhum pagamento pendente encontrado.</td></tr>';
+        loadingSpinner.style.display = 'none';
+        return;
+      }
+      querySnapshot.forEach((doc) => {
+        const pagamento = doc.data();
+        db.collection("alunos").doc(pagamento.alunoId).get().then((alunoDoc) => {
+          relatoriosTable.innerHTML += `
+            <tr class="slide-in">
+              <td>${alunoDoc.data().nome}</td>
+              <td>${parseFloat(pagamento.valor).toFixed(2)}</td>
+              <td>${new Date(pagamento.data).toLocaleDateString()}</td>
+            </tr>`;
+        });
+      });
+      loadingSpinner.style.display = 'none';
+    }).catch(error => {
+      errorMessage.textContent = 'Erro ao carregar relatórios: ' + error.message;
+      errorMessage.style.display = 'block';
+      loadingSpinner.style.display = 'none';
+    });
+  }
+
+  exportCsvButton.addEventListener('click', () => {
+    let csv = 'Aluno,Valor,Data\n';
+    let query = db.collection("pagamentos").where("status", "==", "pendente");
+    if (filterAluno.value) query = query.where("alunoId", "==", filterAluno.value);
+    if (filterData.value) query = query.where("data", ">=", filterData.value).where("data", "<=", filterData.value + "T23:59:59");
+    query.get().then((querySnapshot) => {
+      const promises = [];
+      querySnapshot.forEach((doc) => {
+        const pagamento = doc.data();
+        promises.push(db.collection("alunos").doc(pagamento.alunoId).get().then((alunoDoc) => {
+          csv += `"${alunoDoc.data().nome}",${parseFloat(pagamento.valor).toFixed(2)},"${new Date(pagamento.data).toLocaleDateString()}"\n`;
+        }));
+      });
+      Promise.all(promises).then(() => {
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'relatorios_pagamentos_pendentes.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    });
+  });
+
+  filterButton.addEventListener('click', () => {
+    loadRelatorios(filterAluno.value, filterData.value);
+  });
+
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      loadAlunos();
+      loadRelatorios();
+    } else {
+      window.location.href = '/login.html';
+    }
+  });
+</script>
+</body>
+</html>

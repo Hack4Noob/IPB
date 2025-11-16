@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disciplinas - Admin | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/admin/css/disciplinas.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+  <!-- ============================================= -->
+  <!-- HEADER COM SIDEBAR VERTICAL (DESKTOP) -->
+  <!-- ============================================= -->
+  <header class="header-with-sidebar">
+    <div class="sidebar">
+      <div class="logo-sidebar">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG</h1>
+      </div>
+      <nav class="nav-sidebar">
+        <ul>
+          <li><a href="/admin/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="/admin/cursos.html"><i class="fas fa-book"></i> Cursos</a></li>
+          <li><a href="/admin/turmas.html"><i class="fas fa-users"></i> Turmas</a></li>
+          <li><a href="/admin/disciplinas.html" class="active"><i class="fas fa-graduation-cap"></i> Disciplinas</a></li>
+          <li><a href="/admin/relatorios.html"><i class="fas fa-chart-bar"></i> Relatórios</a></li>
+          <li><a href="/admin/configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+          <li><a href="/admin/usuarios.html"><i class="fas fa-user-shield"></i> Usuários</a></li>
+          <li><a href="/logout.html"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- HEADER MOBILE -->
+    <div class="header-mobile">
+      <div class="container">
+        <div class="logo">
+          <img src="/images/logo.png" alt="IPG Logo">
+          <h1>IPG - Gestão Escolar</h1>
+        </div>
+        <nav class="nav-mobile">
+          <ul>
+            <li><a href="/admin/dashboard.html">Dashboard</a></li>
+            <li><a href="/admin/cursos.html">Cursos</a></li>
+            <li><a href="/admin/turmas.html">Turmas</a></li>
+            <li><a href="/admin/disciplinas.html" class="active">Disciplinas</a></li>
+            <li><a href="/admin/relatorios.html">Relatórios</a></li>
+            <li><a href="/admin/configuracoes.html">Configurações</a></li>
+            <li><a href="/admin/usuarios.html">Usuários</a></li>
+            <li><a href="/logout.html">Sair</a></li>
+          </ul>
+        </nav>
+        <div class="mobile-menu"><i class="fas fa-bars"></i></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================= -->
+  <!-- CONTEÚDO PRINCIPAL -->
+  <!-- ============================================= -->
+  <main class="disciplina-page">
+
+    <section class="page-header">
+      <div class="container">
+        <h1>Gerenciar Disciplinas</h1>
+        <p>Adicione, edite ou remova disciplinas do sistema.</p>
+      </div>
+    </section>
+
+    <!-- FORMULÁRIO ADICIONAR -->
+    <section class="form-container">
+      <div class="container">
+        <h2>Adicionar Disciplina</h2>
+
+        <form id="disciplina-form" class="form-wrapper">
+          <div class="form-group">
+            <label for="nome">Nome da Disciplina</label>
+            <input type="text" id="nome" placeholder="Ex: Matemática" required>
+          </div>
+
+          <div class="form-group">
+            <label for="curso">Curso</label>
+            <select id="curso" required>
+              <option value="">Selecione um curso</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="classe">Classe</label>
+            <select id="classe" required>
+              <option value="">Selecione a classe</option>
+              <option value="10ª">10ª Classe</option>
+              <option value="11ª">11ª Classe</option>
+              <option value="12ª">12ª Classe</option>
+              <option value="13ª">13ª Classe</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <span class="btn-text">Adicionar</span>
+            <i class="fas fa-check btn-icon" style="display:none;"></i>
+          </button>
+        </form>
+
+        <div id="form-error" class="msg-error"></div>
+      </div>
+    </section>
+
+    <!-- TABELA -->
+    <section class="table-container">
+      <div class="container">
+        <h2>Lista de Disciplinas</h2>
+
+        <div class="filter-container">
+          <div class="filter-group">
+            <label for="filter-curso">Curso</label>
+            <select id="filter-curso">
+              <option value="">Todos os Cursos</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-classe">Classe</label>
+            <select id="filter-classe">
+              <option value="">Todas as Classes</option>
+              <option value="10ª">10ª</option>
+              <option value="11ª">11ª</option>
+              <option value="12ª">12ª</option>
+              <option value="13ª">13ª</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-nome">Nome</label>
+            <input type="text" id="filter-nome" placeholder="Buscar por nome">
+          </div>
+
+          <div class="actions-container">
+            <button id="filter-button" class="btn btn-primary">Filtrar</button>
+            <button id="export-csv" class="btn btn-primary">Exportar CSV</button>
+          </div>
+        </div>
+
+        <div id="disciplina-loading">Carregando disciplinas...</div>
+        <div id="table-error" class="msg-error"></div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Curso</th>
+                <th>Classe</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="disciplinas-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>© 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+
+  <!-- MENU MOBILE JS (IGUAL EM TODAS AS PÁGINAS) -->
+  <script>
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const navMobile = document.querySelector('.nav-mobile');
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+    document.body.appendChild(overlay);
+
+    mobileMenu.addEventListener('click', () => {
+      navMobile.classList.toggle('active');
+      overlay.classList.toggle('active');
+      mobileMenu.innerHTML = navMobile.classList.contains('active') 
+        ? '<i class="fas fa-times"></i>' 
+        : '<i class="fas fa-bars"></i>';
+    });
+
+    overlay.addEventListener('click', () => {
+      navMobile.classList.remove('active');
+      overlay.classList.remove('active');
+      mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+    });
+
+    document.querySelectorAll('.nav-mobile a').forEach(link => {
+      link.addEventListener('click', () => {
+        navMobile.classList.remove('active');
+        overlay.classList.remove('active');
+        mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+      });
+    });
+  </script>
+
+  <!-- DISCIPLINAS JS -->
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const disciplinasTable = document.getElementById('disciplinas-table');
+    const cursoSelect = document.getElementById('curso');
+    const classeSelect = document.getElementById('classe');
+    const filterCurso = document.getElementById('filter-curso');
+    const filterClasse = document.getElementById('filter-classe');
+    const filterNome = document.getElementById('filter-nome');
+    const filterButton = document.getElementById('filter-button');
+    const exportCsvButton = document.getElementById('export-csv');
+    const loading = document.getElementById('disciplina-loading');
+    const formError = document.getElementById('form-error');
+    const tableError = document.getElementById('table-error');
+    const addBtn = document.querySelector('#disciplina-form .btn');
+
+    function showPopup(message, success = true) {
+      const popup = document.createElement('div');
+      popup.className = `popup ${success ? 'success' : 'error'} show`;
+      popup.innerHTML = `
+        <i class="popup-icon fas ${success ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+        <p class="popup-message">${message}</p>
+      `;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+
+    function animateButtonSuccess(btn) {
+      btn.classList.add('success');
+      setTimeout(() => btn.classList.remove('success'), 1000);
+    }
+
+    async function loadCursos() {
+      try {
+        const snap = await db.collection('cursos').get();
+        snap.forEach(doc => {
+          const nome = doc.data().nome;
+          const opt = `<option value="${doc.id}">${nome}</option>`;
+          cursoSelect.innerHTML += opt;
+          filterCurso.innerHTML += opt;
+        });
+      } catch (err) {
+        showPopup('Erro ao carregar cursos.', false);
+      }
+    }
+
+    async function loadDisciplinas(cursoId = '', classe = '', nome = '') {
+      loading.classList.add('active');
+      tableError.textContent = '';
+      disciplinasTable.innerHTML = '';
+
+      try {
+        let q = db.collection('disciplinas');
+        if (cursoId) q = q.where('cursoId', '==', cursoId);
+        if (classe) q = q.where('classe', '==', classe);
+
+        const snap = await q.get();
+        if (snap.empty) {
+          disciplinasTable.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhuma disciplina encontrada.</td></tr>';
+          loading.classList.remove('active');
+          return;
+        }
+
+        const rows = [];
+        for (const doc of snap.docs) {
+          const d = doc.data();
+          if (nome && !d.nome.toLowerCase().includes(nome.toLowerCase())) continue;
+
+          const cursoSnap = await db.collection('cursos').doc(d.cursoId).get();
+          const cursoNome = cursoSnap.exists ? cursoSnap.data().nome : 'Desconhecido';
+
+          rows.push(`
+            <tr class="slide-in" data-id="${doc.id}">
+              <td class="editable" data-field="nome">${d.nome}</td>
+              <td>${cursoNome}</td>
+              <td class="editable" data-field="classe">${d.classe || '—'}</td>
+              <td class="action-buttons">
+                <button class="btn btn-danger delete-btn" data-id="${doc.id}">Excluir</button>
+              </td>
+            </tr>
+          `);
+        }
+        disciplinasTable.innerHTML = rows.join('');
+        attachActionListeners();
+      } catch (err) {
+        tableError.textContent = 'Erro ao carregar disciplinas.';
+        showPopup('Erro ao carregar.', false);
+      } finally {
+        loading.classList.remove('active');
+      }
+    }
+
+    function attachActionListeners() {
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.dataset.id;
+          if (!confirm('Tem certeza que deseja excluir esta disciplina?')) return;
+          try {
+            await db.collection('disciplinas').doc(id).delete();
+            showPopup('Disciplina excluída com sucesso!');
+            loadDisciplinas(filterCurso.value, filterClasse.value, filterNome.value);
+          } catch (err) {
+            showPopup('Erro ao excluir.', false);
+          }
+        };
+      });
+
+      document.querySelectorAll('.editable').forEach(cell => {
+        cell.onclick = () => {
+          const row = cell.closest('tr');
+          const id = row.dataset.id;
+          const field = cell.dataset.field;
+          const current = cell.textContent.trim();
+          if (cell.querySelector('input, select')) return;
+
+          let input;
+          if (field === 'classe') {
+            input = document.createElement('select');
+            ['10ª', '11ª', '12ª', '13ª'].forEach(cl => {
+              const opt = new Option(cl, cl, cl === current, cl === current);
+              input.add(opt);
+            });
+          } else {
+            input = document.createElement('input');
+            input.type = 'text';
+            input.value = current;
+          }
+
+          input.className = 'inline-edit';
+          input.style.width = '100%';
+          cell.innerHTML = '';
+          cell.appendChild(input);
+          input.focus();
+
+          const save = async () => {
+            const newVal = input.value.trim();
+            if (newVal === current) { cell.textContent = current; return; }
+            try {
+              await db.collection('disciplinas').doc(id).update({ [field]: newVal });
+              showPopup('Disciplina atualizada!');
+              loadDisciplinas(filterCurso.value, filterClasse.value, filterNome.value);
+            } catch (err) {
+              showPopup('Erro ao atualizar.', false);
+            }
+          };
+
+          input.onblur = save;
+          input.onkeydown = e => {
+            if (e.key === 'Enter') save();
+            else if (e.key === 'Escape') cell.textContent = current;
+          };
+        };
+      });
+    }
+
+    document.getElementById('disciplina-form').onsubmit = async e => {
+      e.preventDefault();
+      const nome = document.getElementById('nome').value.trim();
+      const cursoId = cursoSelect.value;
+      const classe = classeSelect.value;
+
+      if (!nome || !cursoId || !classe) {
+        formError.textContent = 'Preencha todos os campos.';
+        return;
+      }
+
+      try {
+        const dup = await db.collection('disciplinas')
+          .where('nome', '==', nome)
+          .where('cursoId', '==', cursoId)
+          .where('classe', '==', classe)
+          .get();
+
+        if (!dup.empty) {
+          formError.textContent = 'Disciplina já existe nesta classe e curso.';
+          return;
+        }
+
+        await db.collection('disciplinas').add({ nome, cursoId, classe });
+        animateButtonSuccess(addBtn);
+        showPopup('Disciplina adicionada com sucesso!');
+        e.target.reset();
+        formError.textContent = '';
+        loadDisciplinas();
+      } catch (err) {
+        formError.textContent = 'Erro ao adicionar.';
+        showPopup('Erro ao adicionar.', false);
+      }
+    };
+
+    filterButton.onclick = () => loadDisciplinas(filterCurso.value, filterClasse.value, filterNome.value);
+
+    exportCsvButton.onclick = async () => {
+      let csv = 'Nome,Curso,Classe\n';
+      let q = db.collection('disciplinas');
+      if (filterCurso.value) q = q.where('cursoId', '==', filterCurso.value);
+      if (filterClasse.value) q = q.where('classe', '==', filterClasse.value);
+
+      const snap = await q.get();
+      for (const doc of snap.docs) {
+        const d = doc.data();
+        const cSnap = await db.collection('cursos').doc(d.cursoId).get();
+        const curso = cSnap.exists ? cSnap.data().nome : 'Desconhecido';
+        if (filterNome.value && !d.nome.toLowerCase().includes(filterNome.value.toLowerCase())) continue;
+        csv += `"${d.nome.replace(/"/g, '""')}","${curso.replace(/"/g, '""')}","${d.classe}"\n`;
+      }
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), { href: url, download: 'disciplinas.csv' });
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    auth.onAuthStateChanged(user => {
+      if (!user) return (window.location.href = '/login.html');
+      db.collection('usuarios').doc(user.uid).get()
+        .then(doc => {
+          if (doc.exists && doc.data().role === 'admin') {
+            loadCursos();
+            loadDisciplinas();
+          } else {
+            window.location.href = '/login.html';
+          }
+        })
+        .catch(() => window.location.href = '/login.html');
+    });
+  </script>
+</body>
+</html>

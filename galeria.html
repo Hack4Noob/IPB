@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Galeria de imagens do IPG - Instituto Politécnico da Graça, Benguela, Angola.">
+  <meta name="keywords" content="galeria, IPG, fotos, eventos, campus">
+  <meta name="author" content="IPG Instituto Politécnico da Graça">
+  <title>Galeria - IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/galeria.css">
+  <link rel="preload" as="style" href="/css/galeria.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Instituto Politécnico da Graça</h1>
+      </div>
+      <nav>
+        <ul id="nav-list" role="navigation">
+          <li class="home-link">
+            <a href="/index.html" title="Voltar para página principal" aria-current="page">
+              <svg class="home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <path d="M9 22V12h6v10"/>
+              </svg>
+              Início
+            </a>
+          </li>
+          <li><a href="/sobre.html">Sobre</a></li>
+          <li><a href="/cursos.html">Cursos</a></li>
+          <li><a href="/galeria.html" class="active" aria-current="page">Galeria</a></li>
+          <li><a href="/cadastro.html">Cadastre-se</a></li>
+          <li><a href="/contato.html">Contato</a></li>
+          <li><a href="/associacao/dashboard.html">Associação</a></li>
+          <li id="user-area"><a href="/login.html" aria-label="Área do Usuário">Área do Usuário</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu" aria-label="Abrir menu de navegação">
+        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12h18"/>
+          <path d="M3 6h18"/>
+          <path d="M3 18h18"/>
+        </svg>
+        <svg class="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+          <path d="M18 6L6 18"/>
+          <path d="M6 6l12 12"/>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>Nossa Galeria</h1>
+        <p>Conheça os momentos especiais do IPG - Instituto Politécnico da Graça</p>
+      </div>
+    </section>
+
+    <section class="gallery-section">
+      <div class="container">
+        <!-- Filtros de categoria -->
+        <div class="gallery-filters" role="tablist" aria-label="Filtrar imagens por categoria">
+          <button class="filter-btn active" data-category="todos" role="tab" aria-selected="true" aria-label="Mostrar todas as categorias">
+            Todos
+          </button>
+          <button class="filter-btn" data-category="campus" role="tab" aria-selected="false" aria-label="Mostrar fotos do campus">
+            Campus
+          </button>
+          <button class="filter-btn" data-category="eventos" role="tab" aria-selected="false" aria-label="Mostrar fotos de eventos">
+            Eventos
+          </button>
+          <button class="filter-btn" data-category="alunos" role="tab" aria-selected="false" aria-label="Mostrar fotos de alunos">
+            Alunos
+          </button>
+          <button class="filter-btn" data-category="laboratorios" role="tab" aria-selected="false" aria-label="Mostrar fotos de laboratórios">
+            Laboratórios
+          </button>
+        </div>
+
+        <!-- Grid de galeria -->
+        <div class="gallery-grid" id="gallery-container" role="region" aria-label="Galeria de imagens">
+          <!-- Imagens carregadas dinamicamente -->
+        </div>
+
+        <!-- Estado de carregamento -->
+        <div id="gallery-loading" class="loading-spinner" aria-live="polite" aria-label="Carregando imagens">
+          Carregando galeria...
+        </div>
+
+        <!-- Mensagem de erro -->
+        <div id="gallery-error" class="error-message" aria-live="assertive" role="alert"></div>
+
+        <!-- Vazio -->
+        <div id="gallery-empty" class="empty-state" style="display: none;">
+          <p>Nenhuma imagem disponível nesta categoria.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox-modal" class="lightbox-modal" role="dialog" aria-hidden="true" aria-labelledby="lightbox-title">
+      <div class="lightbox-backdrop" aria-hidden="true"></div>
+      <div class="lightbox-content">
+        <button class="lightbox-close" aria-label="Fechar galeria"><span aria-hidden="true">&times;</span></button>
+        <button class="lightbox-prev" aria-label="Imagem anterior"><span aria-hidden="true">&#8249;</span></button>
+        <div class="lightbox-image-container">
+          <img id="lightbox-image" src="/placeholder.svg" alt="" class="lightbox-image">
+          <div id="lightbox-title" class="lightbox-title"></div>
+          <div class="lightbox-meta">
+            <span id="lightbox-category" class="lightbox-category"></span>
+            <span id="lightbox-date" class="lightbox-date"></span>
+          </div>
+        </div>
+        <button class="lightbox-next" aria-label="Próxima imagem"><span aria-hidden="true">&#8250;</span></button>
+        <div class="lightbox-counter"><span id="lightbox-current">0</span> / <span id="lightbox-total">0</span></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-col">
+        <h3>IPG - Instituto Politécnico da Graça</h3>
+        <p>Rua da Educação, 123 - Bairro Nossa Senhora da Graça</p>
+        <p>Cidade de Benguela, Angola</p>
+        <p>CEP: 12345-678</p>
+      </div>
+      <div class="footer-col">
+        <h3>Horário de Funcionamento</h3>
+        <p>Segunda a Sexta: 7h às 15h</p>
+        <p>Sábado: 8h às 12h</p>
+        <p>Domingo: Fechado</p>
+      </div>
+      <div class="footer-col">
+        <h3>Redes Sociais</h3>
+        <div class="social-links">
+          <a href="https://facebook.com/ipg-angola" aria-label="Facebook do IPG"><i class="fab fa-facebook"></i></a>
+          <a href="https://instagram.com/ipg-angola" aria-label="Instagram do IPG"><i class="fab fa-instagram"></i></a>
+          <a href="https://twitter.com/ipg-angola" aria-label="Twitter do IPG"><i class="fab fa-twitter"></i></a>
+          <a href="https://youtube.com/ipg-angola" aria-label="YouTube do IPG"><i class="fab fa-youtube"></i></a>
+        </div>
+        <p><a href="mailto:contato@ipg-angola.com" aria-label="Enviar e-mail para o IPG">contato@ipg-angola.com</a></p>
+        <p>(+244) 940525856</p>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2025 IPG - Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/gallery-manager.js"></script>
+</body>
+</html>

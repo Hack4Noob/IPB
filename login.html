@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Faça login na sua conta do IPG - Instituto Politécnico da Graça.">
+  <meta name="keywords" content="IPG, login, educação técnica, Benguela, Angola">
+  <meta name="author" content="IPG - Instituto Politécnico da Graça">
+  <title>Login - IPG - Instituto Politécnico da Graça</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/login.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Instituto Politécnico da Graça</h1>
+      </div>
+      <nav>
+        <ul id="nav-list" role="navigation">
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/sobre.html">Sobre</a></li>
+          <li><a href="/cursos.html">Cursos</a></li>
+          <li><a href="/cadastro.html">Cadastre-se</a></li>
+          <li><a href="/contato.html">Contato</a></li>
+          <li><a href="/associacao/dashboard.html">Associação</a></li>
+          <li id="user-area"><a href="/login.html" class="active" aria-current="page">Área do Usuário</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu" aria-label="Abrir menu de navegação">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="login">
+      <div class="container">
+        <h2>Login</h2>
+        <div class="form-container fade-in">
+          <form id="login-form">
+            <div class="form-group">
+              <label for="usuario">E-mail</label>
+              <input type="email" id="usuario" name="usuario" required aria-required="true" placeholder="Digite seu e-mail">
+            </div>
+            <div class="form-group">
+              <label for="senha">Senha</label>
+              <input type="password" id="senha" name="senha" required aria-required="true" placeholder="Digite sua senha">
+            </div>
+            <button type="submit" class="btn" aria-label="Entrar">Entrar</button>
+            <p class="form-link">Não tem uma conta? <a href="/cadastro.html" aria-label="Criar uma conta">Cadastre-se</a></p>
+            <div id="error-message" class="form-message"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-col">
+        <h3>IPG - Instituto Politécnico da Graça</h3>
+        <p>Rua da Educação, 123 - Bairro Nossa Senhora da Graça</p>
+        <p>Cidade de Benguela, Angola</p>
+        <p>CEP: 12345-678</p>
+      </div>
+      <div class="footer-col">
+        <h3>Horário de Funcionamento</h3>
+        <p>Segunda a Sexta: 7h às 15h</p>
+        <p>Sábado: 8h às 12h</p>
+        <p>Domingo: Fechado</p>
+      </div>
+      <div class="footer-col">
+        <h3>Redes Sociais</h3>
+        <div class="social-links">
+          <a href="https://facebook.com/ipg-angola" aria-label="Facebook do IPG"><i class="fab fa-facebook"></i></a>
+          <a href="https://instagram.com/ipg-angola" aria-label="Instagram do IPG"><i class="fab fa-instagram"></i></a>
+          <a href="https://twitter.com/ipg-angola" aria-label="Twitter do IPG"><i class="fab fa-twitter"></i></a>
+          <a href="https://youtube.com/ipg-angola" aria-label="YouTube do IPG"><i class="fab fa-youtube"></i></a>
+        </div>
+        <p><a href="mailto:contato@ipg-angola.com" aria-label="Enviar e-mail para o IPG">contato@ipg-angola.com</a></p>
+        <p>(+244) 940525856</p>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2025 IPG - Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Firebase e scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/ui-manager.js"></script>
+</body>
+</html>

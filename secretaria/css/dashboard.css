@@ -1,0 +1,303 @@
+/* /secretaria/css/dashboard.css */
+:root {
+  --primary-color: #3498db;
+  --primary-hover: #2980b9;
+  --text-white: #ffffff;
+  --text-light: #7f8c8d;
+  --background-light: #f9f9f9;
+  --shadow-color: rgba(0, 0, 0, 0.15);
+  --border-color: #e0e0e0;
+  --error-color: #d32f2f;
+  --border-radius: 8px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --font-size-base: 1rem; /* Adicionado para consistência */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-light: #1a252f;
+    --text-light: #b0b0b0;
+    --border-color: #444444;
+    --error-color: #ef5350;
+  }
+}
+
+.page-header {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/images/escola-hero.jpg');
+  background-size: cover;
+  background-position: center;
+  color: var(--text-white);
+  text-align: center;
+  padding: 60px 0;
+  position: relative;
+  animation: fadeIn 1s ease-in;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.page-header > * {
+  position: relative;
+  z-index: 2;
+}
+
+.page-header h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin-bottom: var(--spacing-md);
+}
+
+.page-header p {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+  max-width: 600px;
+  margin: 0 auto;
+  opacity: 0.9;
+}
+
+.dashboard-content {
+  padding: var(--spacing-xl) 0;
+  background-color: var(--background-light);
+  animation: fadeIn 1s ease-in;
+}
+
+.dashboard-content h2 {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  position: relative;
+}
+
+.dashboard-content h2::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 4px;
+  background-color: var(--primary-color);
+  margin: var(--spacing-md) auto 0;
+}
+
+.numeros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeIn 1s ease-in;
+}
+
+.numero-item {
+  background: var(--text-white);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.numero-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px var(--shadow-color);
+}
+
+.numero-item h3 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-sm);
+}
+
+.numero-item p {
+  font-size: var(--font-size-base);
+  color: var(--text-light);
+}
+
+.error-message {
+  color: var(--error-color);
+  font-size: 0.875rem;
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+  display: none;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.error-message:not(.hidden) {
+  display: block;
+}
+
+#loading-spinner {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--text-light);
+  margin: var(--spacing-lg) 0;
+  animation: spin 1s linear infinite;
+}
+
+/* Estilização para o link "Início" com SVG separado */
+.home-link {
+  margin-bottom: var(--spacing-md);
+  padding-left: var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.home-link a {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--text-dark);
+  text-decoration: none;
+  font-size: 1rem;
+  padding: var(--spacing-sm) 0;
+}
+
+.home-link .home-icon {
+  width: 16px; /* SVG menor */
+  height: 16px;
+  stroke: var(--text-dark);
+  transition: transform 0.3s ease;
+}
+
+.home-link a:hover .home-icon {
+  transform: scale(1.1);
+}
+
+.home-link a:hover {
+  color: var(--primary-color);
+}
+
+/* Adicionado: Estilização para sidebar (opcional, para alinhar com .menu-container) */
+.menu-container {
+  width: 250px;
+  background-color: var(--background-light);
+  border-right: 1px solid var(--border-color);
+  height: 100vh;
+  position: fixed;
+  padding-top: var(--spacing-md);
+  transition: transform 0.3s ease;
+  transform: translateX(0);
+  z-index: 1000;
+}
+
+.menu-container nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu-container .menu-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  color: var(--text-light);
+  text-decoration: none;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.menu-container .menu-item:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.menu-container .menu-item.active {
+  background-color: var(--primary-color);
+  color: var(--text-white);
+  font-weight: bold;
+}
+
+.menu-container .menu-item svg {
+  margin-right: var(--spacing-sm);
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+/* Estilização do menu mobile no header */
+header .mobile-menu {
+  display: none;
+  cursor: pointer;
+  padding: var(--spacing-md);
+  position: relative;
+}
+
+header .mobile-menu svg {
+  width: 24px;
+  height: 24px;
+  fill: var(--text-light);
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+header .mobile-menu .close-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-white);
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    padding: 40px 0;
+  }
+  .dashboard-content {
+    padding: var(--spacing-lg) 0;
+  }
+  .numero-item {
+    padding: var(--spacing-md);
+  }
+  header nav {
+    display: none;
+  }
+  header nav.active {
+    display: block;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 250px;
+    height: calc(100% - 60px);
+    background: var(--background-light);
+    border-right: 1px solid var(--border-color);
+    z-index: 1000;
+    padding-top: var(--spacing-md);
+  }
+  header .mobile-menu {
+    display: block;
+  }
+  .home-link {
+    padding-left: 0; /* Ajuste para mobile */
+  }
+}
+
+@media (max-width: 576px) {
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+  .page-header p {
+    font-size: 0.875rem;
+  }
+  .dashboard-content h2 {
+    font-size: 1.65rem;
+  }
+  .numero-item h3 {
+    font-size: 1.5rem;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

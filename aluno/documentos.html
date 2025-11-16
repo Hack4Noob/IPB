@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentos - Aluno | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/aluno/css/documentos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li><a href="/aluno/dashboard.html">Dashboard</a></li>
+          <li><a href="/aluno/notas.html">Notas</a></li>
+          <li><a href="/aluno/presencas.html">Presenças</a></li>
+          <li><a href="/aluno/avisos.html">Avisos</a></li>
+          <li><a href="/aluno/perfil.html">Perfil</a></li>
+          <li><a href="/aluno/documentos.html" class="active">Documentos</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <section class="page-header">
+    <div class="container">
+      <h1>Meus Documentos</h1>
+      <p>Consulte os documentos enviados à secretaria ou envie novos documentos.</p>
+    </div>
+  </section>
+  <section class="documentos-content">
+    <div class="container">
+      <h2>Lista de Documentos</h2>
+      <div class="filter-container">
+        <select id="filter-tipo">
+          <option value="">Todos os Tipos</option>
+          <option value="BI">Bilhete de Identidade</option>
+          <option value="Certificado">Certificado</option>
+          <option value="Comprovante">Comprovante</option>
+          <option value="Outro">Outro</option>
+        </select>
+        <select id="filter-status">
+          <option value="">Todos os Status</option>
+          <option value="pendente">Pendente</option>
+          <option value="aprovado">Aprovado</option>
+          <option value="rejeitado">Rejeitado</option>
+        </select>
+        <button id="filter-button">Filtrar</button>
+      </div>
+      <div class="upload-container">
+        <h3>Enviar Novo Documento</h3>
+        <form id="upload-form">
+          <label for="doc-tipo">Tipo de Documento</label>
+          <select id="doc-tipo" required>
+            <option value="BI">Bilhete de Identidade</option>
+            <option value="Certificado">Certificado</option>
+            <option value="Comprovante">Comprovante</option>
+            <option value="Outro">Outro</option>
+          </select>
+          <label for="doc-file">Arquivo (PDF, JPG, PNG)</label>
+          <input type="file" id="doc-file" accept=".pdf,.jpg,.png" required>
+          <button type="submit" class="btn">Enviar</button>
+        </form>
+      </div>
+      <div id="loading-spinner">Carregando documentos...</div>
+      <div id="error-message" class="error-message"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Documento</th>
+            <th>Data</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="documentos-table"></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-storage-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/content-manager.js"></script>
+  <script src="/js/data-manager.js"></script>
+  <script>
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+    const auth = firebase.auth();
+    const documentosTable = document.getElementById("documentos-table");
+    const filterTipo = document.getElementById("filter-tipo");
+    const filterStatus = document.getElementById("filter-status");
+    const filterButton = document.getElementById("filter-button");
+    const uploadForm = document.getElementById("upload-form");
+    const docFile = document.getElementById("doc-file");
+    const docTipo = document.getElementById("doc-tipo");
+    const loadingSpinner = document.getElementById("loading-spinner");
+    const errorMessage = document.getElementById("error-message");
+
+    function loadDocumentos(tipo = "", status = "") {
+      loadingSpinner.style.display = 'block';
+      errorMessage.style.display = 'none';
+      documentosTable.innerHTML = '';
+      let query = db.collection("documentos").where("alunoId", "==", auth.currentUser.uid);
+      if (tipo) query = query.where("tipo", "==", tipo);
+      if (status) query = query.where("status", "==", status);
+      query.get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const documento = doc.data();
+          documentosTable.innerHTML += `
+            <tr>
+              <td>${documento.tipo}</td>
+              <td><a href="${documento.url}" target="_blank">Visualizar</a></td>
+              <td>${new Date(documento.data).toLocaleDateString()}</td>
+              <td>${documento.status}</td>
+            </tr>`;
+        });
+        loadingSpinner.style.display = 'none';
+      }).catch(error => {
+        console.error('Erro ao carregar documentos:', error.message);
+        errorMessage.textContent = 'Erro ao carregar documentos: ' + error.message;
+        errorMessage.style.display = 'block';
+        loadingSpinner.style.display = 'none';
+      });
+    }
+
+    uploadForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const file = docFile.files[0];
+      const tipo = docTipo.value;
+      if (!file || !tipo) {
+        errorMessage.textContent = 'Selecione um arquivo e o tipo de documento.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      if (!['application/pdf', 'image/jpeg', 'image/png'].includes(file.type)) {
+        errorMessage.textContent = 'Apenas arquivos PDF, JPG ou PNG são permitidos.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      loadingSpinner.style.display = 'block';
+      errorMessage.style.display = 'none';
+      const storageRef = storage.ref(`documentos/${auth.currentUser.uid}/${file.name}`);
+      storageRef.put(file).then((snapshot) => {
+        snapshot.ref.getDownloadURL().then((url) => {
+          db.collection("documentos").add({
+            alunoId: auth.currentUser.uid,
+            tipo: tipo,
+            url: url,
+            data: firebase.firestore.FieldValue.serverTimestamp(),
+            status: 'pendente'
+          }).then(() => {
+            loadDocumentos();
+            uploadForm.reset();
+            alert('Documento enviado com sucesso!');
+            loadingSpinner.style.display = 'none';
+          }).catch(error => {
+            console.error('Erro ao salvar documento:', error.message);
+            errorMessage.textContent = 'Erro ao salvar documento: ' + error.message;
+            errorMessage.style.display = 'block';
+            loadingSpinner.style.display = 'none';
+          });
+        });
+      }).catch(error => {
+        console.error('Erro ao fazer upload:', error.message);
+        errorMessage.textContent = 'Erro ao fazer upload: ' + error.message;
+        errorMessage.style.display = 'block';
+        loadingSpinner.style.display = 'none';
+      });
+    });
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        loadDocumentos();
+      } else {
+        window.location.href = '/login.html';
+      }
+    });
+
+    filterButton.addEventListener('click', () => {
+      loadDocumentos(filterTipo.value, filterStatus.value);
+    });
+  </script>
+</body>
+</html>

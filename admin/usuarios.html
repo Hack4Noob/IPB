@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão de Usuários - Admin | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/admin/css/usuarios.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+  <!-- ============================================= -->
+  <!-- HEADER COM SIDEBAR VERTICAL (DESKTOP) -->
+  <!-- ============================================= -->
+  <header class="header-with-sidebar">
+    <div class="sidebar">
+      <div class="logo-sidebar">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG</h1>
+      </div>
+      <nav class="nav-sidebar">
+        <ul>
+          <li><a href="/admin/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="/admin/cursos.html"><i class="fas fa-book"></i> Cursos</a></li>
+          <li><a href="/admin/turmas.html"><i class="fas fa-users"></i> Turmas</a></li>
+          <li><a href="/admin/disciplinas.html"><i class="fas fa-graduation-cap"></i> Disciplinas</a></li>
+          <li><a href="/admin/relatorios.html"><i class="fas fa-chart-bar"></i> Relatórios</a></li>
+          <li><a href="/admin/configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+          <li><a href="/admin/usuarios.html" class="active"><i class="fas fa-user-shield"></i> Usuários</a></li>
+          <li><a href="/logout.html"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- HEADER MOBILE -->
+    <div class="header-mobile">
+      <div class="container">
+        <div class="logo">
+          <img src="/images/logo.png" alt="IPG Logo">
+          <h1>IPG - Gestão Escolar</h1>
+        </div>
+        <nav class="nav-mobile">
+          <ul>
+            <li><a href="/admin/dashboard.html">Dashboard</a></li>
+            <li><a href="/admin/cursos.html">Cursos</a></li>
+            <li><a href="/admin/turmas.html">Turmas</a></li>
+            <li><a href="/admin/disciplinas.html">Disciplinas</a></li>
+            <li><a href="/admin/relatorios.html">Relatórios</a></li>
+            <li><a href="/admin/configuracoes.html">Configurações</a></li>
+            <li><a href="/admin/usuarios.html" class="active">Usuários</a></li>
+            <li><a href="/logout.html">Sair</a></li>
+          </ul>
+        </nav>
+        <div class="mobile-menu"><i class="fas fa-bars"></i></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================= -->
+  <!-- CONTEÚDO PRINCIPAL -->
+  <!-- ============================================= -->
+  <main class="usuarios-page">
+
+    <section class="page-header">
+      <div class="container">
+        <h1>Gestão de Usuários</h1>
+        <p>Adicione, edite ou remova usuários do sistema.</p>
+      </div>
+    </section>
+
+    <!-- FORMULÁRIO ADICIONAR -->
+    <section class="form-container">
+      <div class="container">
+        <h2>Adicionar Usuário</h2>
+
+        <form id="add-user-form" class="form-wrapper">
+          <div class="form-group">
+            <label for="add-nome">Nome</label>
+            <input type="text" id="add-nome" placeholder="Ex: João Silva" required>
+          </div>
+
+          <div class="form-group">
+            <label for="add-email">E-mail</label>
+            <input type="email" id="add-email" placeholder="joao@exemplo.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="add-senha">Senha</label>
+            <input type="password" id="add-senha" placeholder="Mínimo 6 caracteres" required>
+          </div>
+
+          <div class="form-group">
+            <label for="add-role">Role</label>
+            <select id="add-role" required>
+              <option value="">Selecione uma role</option>
+              <option value="admin">Admin</option>
+              <option value="secretaria">Secretaria</option>
+              <option value="professor">Professor</option>
+              <option value="aluno">Aluno</option>
+            </select>
+          </div>
+
+          <div class="member-checkbox">
+            <input type="checkbox" id="add-membro-associacao">
+            <label for="add-membro-associacao">Membro da Associação</label>
+          </div>
+
+          <div class="form-group">
+            <label for="add-role-associacao">Role na Associação</label>
+            <select id="add-role-associacao">
+              <option value="">Nenhum</option>
+              <option value="presidente">Presidente</option>
+              <option value="secretario">Secretário</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <span class="btn-text">Adicionar</span>
+            <i class="fas fa-check btn-icon" style="display:none;"></i>
+          </button>
+        </form>
+
+        <div id="add-error" class="msg-error"></div>
+      </div>
+    </section>
+
+    <!-- TABELA -->
+    <section class="table-container">
+      <div class="container">
+        <h2>Lista de Usuários</h2>
+
+        <div class="filter-container">
+          <div class="filter-group">
+            <label for="filter-nome">Nome</label>
+            <input type="text" id="filter-nome" placeholder="Buscar por nome">
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-email">E-mail</label>
+            <input type="email" id="filter-email" placeholder="Buscar por e-mail">
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-role">Role</label>
+            <select id="filter-role">
+              <option value="">Todas as Roles</option>
+              <option value="admin">Admin</option>
+              <option value="secretaria">Secretaria</option>
+              <option value="professor">Professor</option>
+              <option value="aluno">Aluno</option>
+            </select>
+          </div>
+
+          <div class="actions-container">
+            <button id="filter-button" class="btn btn-primary">Filtrar</button>
+            <button id="export-csv" class="btn btn-primary">Exportar CSV</button>
+          </div>
+        </div>
+
+        <div id="usuarios-loading">Carregando usuários...</div>
+        <div id="usuarios-error" class="msg-error"></div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Role</th>
+                <th>Membro</th>
+                <th>Associação</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="usuarios-table"></tbody>
+          </table>
+        </div>
+
+        <!-- FORMULÁRIO EDITAR -->
+        <div id="edit-form">
+          <h3>Editar Usuário</h3>
+          <form id="edit-user-form" class="form-wrapper">
+            <input type="hidden" id="edit-user-id">
+            <div class="form-group">
+              <label for="edit-nome">Nome</label>
+              <input type="text" id="edit-nome" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-email">E-mail</label>
+              <input type="email" id="edit-email" required>
+            </div>
+            <div class="form-group">
+              <label for="edit-role">Role</label>
+              <select id="edit-role" required>
+                <option value="admin">Admin</option>
+                <option value="secretaria">Secretaria</option>
+                <option value="professor">Professor</option>
+                <option value="aluno">Aluno</option>
+              </select>
+            </div>
+            <div class="member-checkbox">
+              <input type="checkbox" id="edit-membro-associacao">
+              <label for="edit-membro-associacao">Membro da Associação</label>
+            </div>
+            <div class="form-group">
+              <label for="edit-role-associacao">Role na Associação</label>
+              <select id="edit-role-associacao">
+                <option value="">Nenhum</option>
+                <option value="presidente">Presidente</option>
+                <option value="secretario">Secretário</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">
+                <span class="btn-text">Salvar</span>
+                <i class="fas fa-check btn-icon" style="display:none;"></i>
+              </button>
+              <button type="button" id="cancel-edit" class="btn btn-danger">Cancelar</button>
+            </div>
+          </form>
+          <div id="edit-error" class="msg-error"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>© 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <!-- Load security protection module first -->
+  <script src="/js/security-protection.js"></script>
+
+  <!-- MENU MOBILE JS (IGUAL EM TODAS AS PÁGINAS) -->
+  <script>
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const navMobile = document.querySelector('.nav-mobile');
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+    document.body.appendChild(overlay);
+
+    mobileMenu.addEventListener('click', () => {
+      navMobile.classList.toggle('active');
+      overlay.classList.toggle('active');
+      mobileMenu.innerHTML = navMobile.classList.contains('active') 
+        ? '<i class="fas fa-times"></i>' 
+        : '<i class="fas fa-bars"></i>';
+    });
+
+    overlay.addEventListener('click', () => {
+      navMobile.classList.remove('active');
+      overlay.classList.remove('active');
+      mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+    });
+
+    document.querySelectorAll('.nav-mobile a').forEach(link => {
+      link.addEventListener('click', () => {
+        navMobile.classList.remove('active');
+        overlay.classList.remove('active');
+        mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+      });
+    });
+  </script>
+
+  <!-- USUÁRIOS JS -->
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const usuariosTable = document.getElementById("usuarios-table");
+    const filterNome = document.getElementById("filter-nome");
+    const filterEmail = document.getElementById("filter-email");
+    const filterRole = document.getElementById("filter-role");
+    const filterButton = document.getElementById("filter-button");
+    const exportCsvButton = document.getElementById("export-csv");
+    const addError = document.getElementById("add-error");
+    const editError = document.getElementById("edit-error");
+    const tableError = document.getElementById("usuarios-error");
+    const loading = document.getElementById("usuarios-loading");
+    const editForm = document.getElementById("edit-form");
+    const addBtn = document.querySelector("#add-user-form .btn");
+    const editBtn = document.querySelector("#edit-user-form .btn");
+
+    function showPopup(message, success = true) {
+      const popup = document.createElement('div');
+      popup.className = `popup ${success ? 'success' : 'error'} show`;
+      popup.innerHTML = `
+        <i class="popup-icon fas ${success ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+        <p class="popup-message">${SecurityProtection.XSS.sanitize(message)}</p>
+      `;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+
+    function animateButtonSuccess(btn) {
+      btn.classList.add('success');
+      setTimeout(() => btn.classList.remove('success'), 1000);
+    }
+
+    function checkRateLimit(operationType) {
+      const identifier = `admin-${auth.currentUser?.uid}-${operationType}`;
+      return SecurityProtection.RateLimit.check(identifier, 20, 60000); // 20 ops per minute
+    }
+
+    async function verifyAdminAccess() {
+      const user = auth.currentUser;
+      if (!user) return false;
+      
+      try {
+        const userDoc = await db.collection("usuarios").doc(user.uid).get();
+        return userDoc.exists && userDoc.data().role === "admin";
+      } catch (error) {
+        console.error('[SECURITY] Admin verification failed:', error);
+        return false;
+      }
+    }
+
+    async function loadUsuarios(nome = "", email = "", role = "") {
+      if (!checkRateLimit('load-usuarios')) {
+        showPopup('Muitas requisições. Aguarde um momento.', false);
+        return;
+      }
+
+      loading.classList.add('active');
+      tableError.textContent = '';
+      usuariosTable.innerHTML = '';
+
+      try {
+        let q = db.collection("usuarios");
+        if (role) q = q.where("role", "==", role);
+        const snap = await q.get();
+
+        if (snap.empty) {
+          usuariosTable.innerHTML = '<tr><td colspan="6" class="empty-state">Nenhum usuário encontrado.</td></tr>';
+          loading.classList.remove('active');
+          return;
+        }
+
+        const rows = [];
+        for (const doc of snap.docs) {
+          const u = doc.data();
+          const nomeSanitized = SecurityProtection.XSS.sanitize(u.nome || '—');
+          const emailSanitized = SecurityProtection.XSS.sanitize(u.email);
+          
+          if (nome && !nomeSanitized.toLowerCase().includes(nome.toLowerCase())) continue;
+          if (email && !emailSanitized.toLowerCase().includes(email.toLowerCase())) continue;
+
+          rows.push(`
+            <tr class="slide-in">
+              <td>${nomeSanitized}</td>
+              <td>${emailSanitized}</td>
+              <td><span class="status-badge badge-active">${SecurityProtection.XSS.sanitize(u.role)}</span></td>
+              <td><span class="member-badge ${u.membroAssociacao ? '' : 'inactive'}"></span></td>
+              <td>${SecurityProtection.XSS.sanitize(u.roleAssociacao || '—')}</td>
+              <td class="action-buttons">
+                <button class="btn btn-primary edit-btn" data-id="${doc.id}">Editar</button>
+                <button class="btn btn-danger delete-btn" data-id="${doc.id}">Excluir</button>
+              </td>
+            </tr>
+          `);
+        }
+
+        usuariosTable.innerHTML = rows.join('');
+        attachActionListeners();
+      } catch (err) {
+        tableError.textContent = 'Erro ao carregar usuários.';
+        SecurityProtection.DataExposure.safeLog('Erro ao carregar usuários', { error: err.message });
+        showPopup('Erro ao carregar.', false);
+      } finally {
+        loading.classList.remove('active');
+      }
+    }
+
+    function attachActionListeners() {
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.onclick = async () => {
+          if (!checkRateLimit('edit-usuario')) {
+            showPopup('Muitas requisições. Aguarde um momento.', false);
+            return;
+          }
+
+          const id = btn.dataset.id;
+          try {
+            const doc = await db.collection("usuarios").doc(id).get();
+            const u = doc.data();
+            document.getElementById("edit-user-id").value = id;
+            document.getElementById("edit-nome").value = SecurityProtection.XSS.sanitize(u.nome || '');
+            document.getElementById("edit-email").value = SecurityProtection.XSS.sanitize(u.email);
+            document.getElementById("edit-role").value = u.role;
+            document.getElementById("edit-membro-associacao").checked = u.membroAssociacao || false;
+            document.getElementById("edit-role-associacao").value = u.roleAssociacao || '';
+            editForm.style.display = 'block';
+            editError.textContent = '';
+          } catch (err) {
+            SecurityProtection.DataExposure.safeLog('Erro ao editar usuário', { error: err.message });
+            showPopup('Erro ao carregar usuário.', false);
+          }
+        };
+      });
+
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = async () => {
+          if (!checkRateLimit('delete-usuario')) {
+            showPopup('Muitas requisições. Aguarde um momento.', false);
+            return;
+          }
+
+          const id = btn.dataset.id;
+          if (!confirm('Deseja excluir este usuário?')) return;
+          try {
+            await db.collection("usuarios").doc(id).delete();
+            showPopup('Usuário excluído com sucesso!');
+            loadUsuarios(filterNome.value, filterEmail.value, filterRole.value);
+          } catch (err) {
+            SecurityProtection.DataExposure.safeLog('Erro ao excluir', { error: err.message });
+            showPopup('Erro ao excluir.', false);
+          }
+        };
+      });
+    }
+
+    // ADICIONAR
+    document.getElementById("add-user-form").onsubmit = async e => {
+      e.preventDefault();
+      
+      if (!checkRateLimit('create-usuario')) {
+        addError.textContent = 'Muitas requisições. Aguarde um momento.';
+        return;
+      }
+
+      const nome = SecurityProtection.XSS.sanitize(document.getElementById("add-nome").value.trim());
+      const email = SecurityProtection.XSS.sanitize(document.getElementById("add-email").value.trim());
+      const senha = document.getElementById("add-senha").value;
+      const role = document.getElementById("add-role").value;
+      const membroAssociacao = document.getElementById("add-membro-associacao").checked;
+      const roleAssociacao = document.getElementById("add-role-associacao").value;
+
+      if (!nome || !email || !senha || !role) {
+        addError.textContent = 'Preencha todos os campos obrigatórios.';
+        return;
+      }
+      
+      if (!SecurityProtection.XSS.sanitize(email).match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        addError.textContent = 'E-mail inválido.';
+        return;
+      }
+      
+      if (senha.length < 6) {
+        addError.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+        return;
+      }
+
+      loading.classList.add('active');
+      addError.textContent = '';
+
+      try {
+        const cred = await auth.createUserWithEmailAndPassword(email, senha);
+        
+        await db.collection("usuarios").doc(cred.user.uid).set({
+          nome, 
+          email, 
+          role, 
+          membroAssociacao, 
+          roleAssociacao,
+          active: true,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdBy: auth.currentUser.uid
+        });
+        
+        animateButtonSuccess(addBtn);
+        showPopup('Usuário adicionado com sucesso!');
+        e.target.reset();
+        loadUsuarios();
+      } catch (err) {
+        const errorMsg = err.message.includes('email-already-in-use') 
+          ? 'Este e-mail já está em uso.' 
+          : 'Erro ao adicionar usuário.';
+        addError.textContent = errorMsg;
+        SecurityProtection.DataExposure.safeLog('Erro ao criar usuário', { error: err.message });
+        showPopup('Erro ao adicionar.', false);
+      } finally {
+        loading.classList.remove('active');
+      }
+    };
+
+    // EDITAR
+    document.getElementById("edit-user-form").onsubmit = async e => {
+      e.preventDefault();
+      
+      if (!checkRateLimit('update-usuario')) {
+        editError.textContent = 'Muitas requisições. Aguarde um momento.';
+        return;
+      }
+
+      const id = document.getElementById("edit-user-id").value;
+      const nome = SecurityProtection.XSS.sanitize(document.getElementById("edit-nome").value.trim());
+      const email = SecurityProtection.XSS.sanitize(document.getElementById("edit-email").value.trim());
+      const role = document.getElementById("edit-role").value;
+      const membroAssociacao = document.getElementById("edit-membro-associacao").checked;
+      const roleAssociacao = document.getElementById("edit-role-associacao").value;
+
+      if (!nome || !email || !role) {
+        editError.textContent = 'Preencha todos os campos obrigatórios.';
+        return;
+      }
+      
+      if (!SecurityProtection.XSS.sanitize(email).match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+        editError.textContent = 'E-mail inválido.';
+        return;
+      }
+
+      loading.classList.add('active');
+      editError.textContent = '';
+
+      try {
+        await db.collection("usuarios").doc(id).update({
+          nome, 
+          email, 
+          role, 
+          membroAssociacao, 
+          roleAssociacao,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedBy: auth.currentUser.uid
+        });
+        
+        animateButtonSuccess(editBtn);
+        showPopup('Usuário atualizado com sucesso!');
+        editForm.style.display = 'none';
+        loadUsuarios(filterNome.value, filterEmail.value, filterRole.value);
+      } catch (err) {
+        editError.textContent = 'Erro ao atualizar usuário.';
+        SecurityProtection.DataExposure.safeLog('Erro ao atualizar usuário', { error: err.message });
+        showPopup('Erro ao salvar.', false);
+      } finally {
+        loading.classList.remove('active');
+      }
+    };
+
+    document.getElementById("cancel-edit").onclick = () => {
+      editForm.style.display = 'none';
+      editError.textContent = '';
+    };
+
+    // EXPORTAR CSV
+    exportCsvButton.onclick = async () => {
+      if (!checkRateLimit('export-csv')) {
+        showPopup('Muitas requisições. Aguarde um momento.', false);
+        return;
+      }
+
+      let csv = 'Nome,E-mail,Role,Membro Associação,Role Associação\n';
+      let q = db.collection("usuarios");
+      if (filterRole.value) q = q.where("role", "==", filterRole.value);
+      const snap = await q.get();
+
+      for (const doc of snap.docs) {
+        const u = doc.data();
+        if (filterNome.value && !u.nome?.toLowerCase().includes(filterNome.value.toLowerCase())) continue;
+        if (filterEmail.value && !u.email?.toLowerCase().includes(filterEmail.value.toLowerCase())) continue;
+        
+        const nomeSafe = SecurityProtection.XSS.sanitize(u.nome || '');
+        const emailSafe = SecurityProtection.XSS.sanitize(u.email);
+        const roleSafe = SecurityProtection.XSS.sanitize(u.role);
+        
+        csv += `"${nomeSafe}","${emailSafe}","${roleSafe}","${u.membroAssociacao ? 'Sim' : 'Não'}","${u.roleAssociacao || ''}"\n`;
+      }
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), { href: url, download: 'usuarios.csv' });
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    filterButton.onclick = () => loadUsuarios(filterNome.value, filterEmail.value, filterRole.value);
+
+    auth.onAuthStateChanged(async user => {
+      if (!user) return (window.location.href = '/login.html');
+      
+      const isAdmin = await verifyAdminAccess();
+      if (isAdmin) {
+        loadUsuarios();
+      } else {
+        console.error('[SECURITY] Unauthorized access attempt');
+        window.location.href = '/login.html';
+      }
+    });
+  </script>
+</body>
+</html>

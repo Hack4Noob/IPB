@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil - Aluno | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/aluno/css/perfil.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li><a href="/aluno/dashboard.html">Dashboard</a></li>
+          <li><a href="/aluno/notas.html">Notas</a></li>
+          <li><a href="/aluno/presencas.html">Presenças</a></li>
+          <li><a href="/aluno/avisos.html">Avisos</a></li>
+          <li><a href="/aluno/perfil.html" class="active">Perfil</a></li>
+          <li><a href="/aluno/documentos.html">Documentos</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <section class="page-header">
+    <div class="container">
+      <h1>Meu Perfil</h1>
+      <p>Atualize suas informações pessoais.</p>
+    </div>
+  </section>
+  <section class="perfil-content">
+    <div class="container">
+      <h2>Editar Perfil</h2>
+      <div id="loading-spinner">Carregando perfil...</div>
+      <div id="error-message" class="error-message"></div>
+      <form id="perfil-form">
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" placeholder="Digite seu nome" required>
+        <label for="email">E-mail</label>
+        <input type="email" id="email" placeholder="Digite seu e-mail" disabled>
+        <label for="matricula">Matrícula</label>
+        <input type="text" id="matricula" placeholder="Digite sua matrícula" required>
+        <button type="submit" class="btn">Salvar</button>
+      </form>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/content-manager.js"></script>
+  <script src="/js/data-manager.js"></script>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const perfilForm = document.getElementById("perfil-form");
+    const nomeInput = document.getElementById("nome");
+    const emailInput = document.getElementById("email");
+    const matriculaInput = document.getElementById("matricula");
+    const loadingSpinner = document.getElementById("loading-spinner");
+    const errorMessage = document.getElementById("error-message");
+
+    function validateForm() {
+      const nome = nomeInput.value.trim();
+      const matricula = matriculaInput.value.trim();
+      if (!nome || nome.length < 3) {
+        errorMessage.textContent = "O nome deve ter pelo menos 3 caracteres.";
+        errorMessage.style.display = 'block';
+        return false;
+      }
+      if (!matricula || matricula.length < 5) {
+        errorMessage.textContent = "A matrícula deve ter pelo menos 5 caracteres.";
+        errorMessage.style.display = 'block';
+        return false;
+      }
+      return true;
+    }
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        loadingSpinner.style.display = 'block';
+        db.collection("alunos").doc(user.uid).get().then((doc) => {
+          if (doc.exists) {
+            const aluno = doc.data();
+            nomeInput.value = aluno.nome || "";
+            emailInput.value = user.email;
+            matriculaInput.value = aluno.matricula || "";
+          }
+          loadingSpinner.style.display = 'none';
+        }).catch(error => {
+          console.error('Erro ao carregar perfil:', error.message);
+          errorMessage.textContent = 'Erro ao carregar perfil.';
+          errorMessage.style.display = 'block';
+          loadingSpinner.style.display = 'none';
+        });
+      } else {
+        window.location.href = '/login.html';
+      }
+    });
+
+    perfilForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (!validateForm()) return;
+      loadingSpinner.style.display = 'block';
+      errorMessage.style.display = 'none';
+      const nome = nomeInput.value.trim();
+      const matricula = matriculaInput.value.trim();
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          db.collection("alunos").doc(user.uid).set({ nome, matricula }, { merge: true })
+            .then(() => {
+              alert("Perfil atualizado com sucesso!");
+              loadingSpinner.style.display = 'none';
+            })
+            .catch(error => {
+              console.error('Erro ao atualizar perfil:', error.message);
+              errorMessage.textContent = 'Erro ao atualizar perfil: ' + error.message;
+              errorMessage.style.display = 'block';
+              loadingSpinner.style.display = 'none';
+            });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

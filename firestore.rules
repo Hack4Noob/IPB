@@ -1,0 +1,143 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return isAuthenticated() && 
+             get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.role == "admin";
+    }
+    
+    // Helper function to check if user is professor
+    function isProfessor() {
+      return isAuthenticated() && 
+             get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.role == "professor";
+    }
+    
+    // Helper function to check if user is student
+    function isStudent() {
+      return isAuthenticated() && 
+             get(/databases/(default)/documents/usuarios/$(request.auth.uid)).data.role == "aluno";
+    }
+
+    // Usuarios (Users) collection - Restricted access
+    match /usuarios/{document=**} {
+      // Only admins can read all users
+      allow read: if isAdmin();
+      
+      // Users can read their own profile
+      allow read: if isAuthenticated() && request.auth.uid == resource.id;
+      
+      // Only admins can create users
+      allow create: if isAdmin();
+      
+      // Users can update their own profile (except role field)
+      allow update: if isAuthenticated() && request.auth.uid == resource.id
+                     && !('role' in request.resource.data)
+                     && request.resource.data.keys().hasAll(resource.data.keys());
+      
+      // Only admins can delete users
+      allow delete: if isAdmin();
+    }
+
+    // Alunos (Students) collection
+    match /alunos/{document=**} {
+      // Admins can read all students
+      allow read: if isAdmin();
+      
+      // Students can read their own data
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.usuario_id;
+      
+      // Professors can read students in their classes
+      allow read: if isProfessor();
+      
+      // Only admins can create/update/delete students
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Cursos (Courses) collection
+    match /cursos/{document=**} {
+      // All authenticated users can read courses
+      allow read: if isAuthenticated();
+      
+      // Only admins can create/update/delete courses
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Turmas (Classes) collection
+    match /turmas/{document=**} {
+      // All authenticated users can read classes
+      allow read: if isAuthenticated();
+      
+      // Only admins can create/update/delete classes
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Disciplinas (Subjects) collection
+    match /disciplinas/{document=**} {
+      // All authenticated users can read subjects
+      allow read: if isAuthenticated();
+      
+      // Only admins can create/update/delete subjects
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Notas (Grades) collection
+    match /notas/{document=**} {
+      // Admins can read all grades
+      allow read: if isAdmin();
+      
+      // Students can read their own grades
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.aluno_id;
+      
+      // Professors can read grades for their students
+      allow read: if isProfessor();
+      
+      // Professors can update grades
+      allow update: if isProfessor();
+      
+      // Only admins can create/delete grades
+      allow create, delete: if isAdmin();
+    }
+
+    // Presencas (Attendance) collection
+    match /presencas/{document=**} {
+      // Admins can read all attendance
+      allow read: if isAdmin();
+      
+      // Students can read their own attendance
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.aluno_id;
+      
+      // Professors can read and update attendance
+      allow read, update: if isProfessor();
+      
+      // Only admins can create/delete attendance
+      allow create, delete: if isAdmin();
+    }
+
+    // Avisos (Announcements) collection
+    match /avisos/{document=**} {
+      // All authenticated users can read announcements
+      allow read: if isAuthenticated();
+      
+      // Professors can create announcements
+      allow create: if isProfessor();
+      
+      // Professors can update their own announcements
+      allow update: if isProfessor() && request.auth.uid == resource.data.professor_id;
+      
+      // Only admins can delete announcements
+      allow delete: if isAdmin();
+    }
+
+    // Default deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

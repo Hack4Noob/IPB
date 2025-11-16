@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configurações - Admin | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/admin/css/configuracoes.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+  <!-- ============================================= -->
+  <!-- HEADER COM SIDEBAR VERTICAL (DESKTOP) -->
+  <!-- ============================================= -->
+  <header class="header-with-sidebar">
+    <div class="sidebar">
+      <div class="logo-sidebar">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG</h1>
+      </div>
+      <nav class="nav-sidebar">
+        <ul>
+          <li><a href="/admin/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="/admin/cursos.html"><i class="fas fa-book"></i> Cursos</a></li>
+          <li><a href="/admin/turmas.html"><i class="fas fa-users"></i> Turmas</a></li>
+          <li><a href="/admin/disciplinas.html"><i class="fas fa-graduation-cap"></i> Disciplinas</a></li>
+          <li><a href="/admin/relatorios.html"><i class="fas fa-chart-bar"></i> Relatórios</a></li>
+          <li><a href="/admin/configuracoes.html" class="active"><i class="fas fa-cog"></i> Configurações</a></li>
+          <li><a href="/admin/usuarios.html"><i class="fas fa-user-shield"></i> Usuários</a></li>
+          <li><a href="/logout.html"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- HEADER MOBILE -->
+    <div class="header-mobile">
+      <div class="container">
+        <div class="logo">
+          <img src="/images/logo.png" alt="IPG Logo">
+          <h1>IPG - Gestão Escolar</h1>
+        </div>
+        <nav class="nav-mobile">
+          <ul>
+            <li><a href="/admin/dashboard.html">Dashboard</a></li>
+            <li><a href="/admin/cursos.html">Cursos</a></li>
+            <li><a href="/admin/turmas.html">Turmas</a></li>
+            <li><a href="/admin/disciplinas.html">Disciplinas</a></li>
+            <li><a href="/admin/relatorios.html">Relatórios</a></li>
+            <li><a href="/admin/configuracoes.html" class="active">Configurações</a></li>
+            <li><a href="/admin/usuarios.html">Usuários</a></li>
+            <li><a href="/logout.html">Sair</a></li>
+          </ul>
+        </nav>
+        <div class="mobile-menu"><i class="fas fa-bars"></i></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================= -->
+  <!-- CONTEÚDO PRINCIPAL -->
+  <!-- ============================================= -->
+  <main class="config-page">
+
+    <section class="page-header">
+      <div class="container">
+        <h1>Configurações</h1>
+        <p>Gerencie as configurações do sistema.</p>
+      </div>
+    </section>
+
+    <section class="form-container">
+      <div class="container">
+        <h2>Configurações Gerais</h2>
+
+        <form id="configuracoes-form">
+          <label for="nome-instituicao">Nome da Instituição</label>
+          <input type="text" id="nome-instituicao" placeholder="Digite o nome da instituição" required>
+
+          <label for="email-contato">E-mail de Contato</label>
+          <input type="email" id="email-contato" placeholder="Digite o e-mail de contato" required>
+
+          <button type="submit" class="btn" aria-label="Salvar configurações">
+            <span class="btn-text">Salvar</span>
+            <i class="fas fa-check btn-icon" style="display:none;"></i>
+          </button>
+        </form>
+
+        <div id="form-error" class="msg-error"></div>
+        <div id="config-loading">Carregando configurações...</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>© 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+
+  <!-- MENU MOBILE JS (IGUAL EM TODAS AS PÁGINAS) -->
+  <script>
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const navMobile = document.querySelector('.nav-mobile');
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+    document.body.appendChild(overlay);
+
+    mobileMenu.addEventListener('click', () => {
+      navMobile.classList.toggle('active');
+      overlay.classList.toggle('active');
+      mobileMenu.innerHTML = navMobile.classList.contains('active') 
+        ? '<i class="fas fa-times"></i>' 
+        : '<i class="fas fa-bars"></i>';
+    });
+
+    overlay.addEventListener('click', () => {
+      navMobile.classList.remove('active');
+      overlay.classList.remove('active');
+      mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+    });
+
+    document.querySelectorAll('.nav-mobile a').forEach(link => {
+      link.addEventListener('click', () => {
+        navMobile.classList.remove('active');
+        overlay.classList.remove('active');
+        mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+      });
+    });
+  </script>
+
+  <!-- CONFIGURAÇÕES JS -->
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const form = document.getElementById("configuracoes-form");
+    const errorDiv = document.getElementById("form-error");
+    const loading = document.getElementById("config-loading");
+    const saveBtn = form.querySelector('.btn');
+
+    function showPopup(message, success = true) {
+      const popup = document.createElement('div');
+      popup.className = `popup ${success ? 'success' : 'error'} show`;
+      popup.innerHTML = `
+        <i class="popup-icon fas ${success ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+        <p class="popup-message">${message}</p>
+      `;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+
+    function animateButtonSuccess() {
+      saveBtn.classList.add('success');
+      setTimeout(() => saveBtn.classList.remove('success'), 1000);
+    }
+
+    async function loadConfiguracoes() {
+      loading.classList.add('active');
+      errorDiv.textContent = '';
+
+      try {
+        const doc = await db.collection("configuracoes").doc("geral").get();
+        if (doc.exists) {
+          const { nome = '', email = '' } = doc.data();
+          document.getElementById("nome-instituicao").value = nome;
+          document.getElementById("email-contato").value = email;
+        }
+      } catch (err) {
+        showPopup('Erro ao carregar configurações.', false);
+      } finally {
+        loading.classList.remove('active');
+      }
+    }
+
+    form.onsubmit = async e => {
+      e.preventDefault();
+      const nome = document.getElementById("nome-instituicao").value.trim();
+      const email = document.getElementById("email-contato").value.trim();
+
+      if (!nome || !email) {
+        errorDiv.textContent = 'Preencha todos os campos.';
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errorDiv.textContent = 'E-mail inválido.';
+        return;
+      }
+
+      loading.classList.add('active');
+      errorDiv.textContent = '';
+
+      try {
+        await db.collection("configuracoes").doc("geral").set({ nome, email }, { merge: true });
+        animateButtonSuccess();
+        showPopup('Configurações salvas com sucesso!');
+      } catch (err) {
+        errorDiv.textContent = 'Erro ao salvar configurações.';
+        showPopup('Erro ao salvar.', false);
+      } finally {
+        loading.classList.remove('active');
+      }
+    };
+
+    auth.onAuthStateChanged(user => {
+      if (!user) return (window.location.href = '/login.html');
+      db.collection("usuarios").doc(user.uid).get()
+        .then(doc => {
+          if (doc.exists && doc.data().role === "admin") {
+            loadConfiguracoes();
+          } else {
+            window.location.href = '/login.html';
+          }
+        })
+        .catch(() => window.location.href = '/login.html');
+    });
+  </script>
+</body>
+</html>

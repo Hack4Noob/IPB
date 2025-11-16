@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Turmas - Admin | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/admin/css/turmas.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+  <!-- ============================================= -->
+  <!-- HEADER COM SIDEBAR VERTICAL (DESKTOP) -->
+  <!-- ============================================= -->
+  <header class="header-with-sidebar">
+    <div class="sidebar">
+      <div class="logo-sidebar">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG</h1>
+      </div>
+      <nav class="nav-sidebar">
+        <ul>
+          <li><a href="/admin/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="/admin/cursos.html"><i class="fas fa-book"></i> Cursos</a></li>
+          <li><a href="/admin/turmas.html" class="active"><i class="fas fa-users"></i> Turmas</a></li>
+          <li><a href="/admin/disciplinas.html"><i class="fas fa-graduation-cap"></i> Disciplinas</a></li>
+          <li><a href="/admin/relatorios.html"><i class="fas fa-chart-bar"></i> Relatórios</a></li>
+          <li><a href="/admin/configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+          <li><a href="/admin/usuarios.html"><i class="fas fa-user-shield"></i> Usuários</a></li>
+          <li><a href="/logout.html"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- HEADER MOBILE -->
+    <div class="header-mobile">
+      <div class="container">
+        <div class="logo">
+          <img src="/images/logo.png" alt="IPG Logo">
+          <h1>IPG - Gestão Escolar</h1>
+        </div>
+        <nav class="nav-mobile">
+          <ul>
+            <li><a href="/admin/dashboard.html">Dashboard</a></li>
+            <li><a href="/admin/cursos.html">Cursos</a></li>
+            <li><a href="/admin/turmas.html" class="active">Turmas</a></li>
+            <li><a href="/admin/disciplinas.html">Disciplinas</a></li>
+            <li><a href="/admin/relatorios.html">Relatórios</a></li>
+            <li><a href="/admin/configuracoes.html">Configurações</a></li>
+            <li><a href="/admin/usuarios.html">Usuários</a></li>
+            <li><a href="/logout.html">Sair</a></li>
+          </ul>
+        </nav>
+        <div class="mobile-menu"><i class="fas fa-bars"></i></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================= -->
+  <!-- CONTEÚDO PRINCIPAL -->
+  <!-- ============================================= -->
+  <main class="turmas-page">
+
+    <section class="page-header">
+      <div class="container">
+        <h1>Gerenciar Turmas</h1>
+        <p>Adicione, edite ou remova turmas do sistema.</p>
+      </div>
+    </section>
+
+    <!-- FORMULÁRIO -->
+    <section class="form-container">
+      <div class="container">
+        <h2>Adicionar Turma</h2>
+
+        <form id="turma-form" class="form-wrapper">
+          <div class="form-group">
+            <label for="nome">Nome da Turma</label>
+            <input type="text" id="nome" placeholder="Ex: 1º Ano - Manhã" required>
+          </div>
+
+          <div class="form-group">
+            <label for="curso">Curso</label>
+            <select id="curso" required>
+              <option value="">Selecione um curso</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="professor">Professor</label>
+            <select id="professor" required>
+              <option value="">Selecione um professor</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <span class="btn-text">Adicionar</span>
+            <i class="fas fa-check btn-icon" style="display:none;"></i>
+          </button>
+        </form>
+
+        <div id="form-error" class="msg-error"></div>
+      </div>
+    </section>
+
+    <!-- TABELA -->
+    <section class="table-container">
+      <div class="container">
+        <h2>Lista de Turmas</h2>
+
+        <div class="filter-container">
+          <div class="filter-group">
+            <label for="filter-curso">Curso</label>
+            <select id="filter-curso">
+              <option value="">Todos os Cursos</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-nome">Nome</label>
+            <input type="text" id="filter-nome" placeholder="Buscar por nome">
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-professor">Professor</label>
+            <select id="filter-professor">
+              <option value="">Todos os Professores</option>
+            </select>
+          </div>
+
+          <div class="actions-container">
+            <button id="filter-button" class="btn btn-primary">Filtrar</button>
+            <button id="export-csv" class="btn btn-primary">Exportar CSV</button>
+          </div>
+        </div>
+
+        <div id="turmas-loading">Carregando turmas...</div>
+        <div id="turmas-error" class="msg-error"></div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Curso</th>
+                <th>Professor</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="turmas-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>© 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+
+  <!-- MENU MOBILE JS (IGUAL EM TODAS AS PÁGINAS) -->
+  <script>
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const navMobile = document.querySelector('.nav-mobile');
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+    document.body.appendChild(overlay);
+
+    mobileMenu.addEventListener('click', () => {
+      navMobile.classList.toggle('active');
+      overlay.classList.toggle('active');
+      mobileMenu.innerHTML = navMobile.classList.contains('active') 
+        ? '<i class="fas fa-times"></i>' 
+        : '<i class="fas fa-bars"></i>';
+    });
+
+    overlay.addEventListener('click', () => {
+      navMobile.classList.remove('active');
+      overlay.classList.remove('active');
+      mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+    });
+
+    document.querySelectorAll('.nav-mobile a').forEach(link => {
+      link.addEventListener('click', () => {
+        navMobile.classList.remove('active');
+        overlay.classList.remove('active');
+        mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+      });
+    });
+  </script>
+
+  <!-- TURMAS JS -->
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const turmasTable = document.getElementById("turmas-table");
+    const cursoSelect = document.getElementById("curso");
+    const professorSelect = document.getElementById("professor");
+    const filterCurso = document.getElementById("filter-curso");
+    const filterNome = document.getElementById("filter-nome");
+    const filterProfessor = document.getElementById("filter-professor");
+    const filterButton = document.getElementById("filter-button");
+    const exportCsvButton = document.getElementById("export-csv");
+    const formError = document.getElementById("form-error");
+    const tableError = document.getElementById("turmas-error");
+    const loading = document.getElementById("turmas-loading");
+    const addBtn = document.querySelector("#turma-form .btn");
+
+    // POPUP
+    function showPopup(message, success = true) {
+      const popup = document.createElement('div');
+      popup.className = `popup ${success ? 'success' : 'error'} show`;
+      popup.innerHTML = `
+        <i class="popup-icon fas ${success ? 'fa-check-circle' : 'fa-times-circle'}"></i>
+        <p class="popup-message">${message}</p>
+      `;
+      document.body.appendChild(popup);
+      setTimeout(() => popup.remove(), 3000);
+    }
+
+    function animateButtonSuccess(btn) {
+      btn.classList.add('success');
+      setTimeout(() => btn.classList.remove('success'), 1000);
+    }
+
+    // CARREGAR CURSOS
+    async function loadCursos() {
+      try {
+        const snap = await db.collection("cursos").get();
+        cursoSelect.innerHTML = '<option value="">Selecione um curso</option>';
+        filterCurso.innerHTML = '<option value="">Todos os Cursos</option>';
+        snap.forEach(doc => {
+          const c = doc.data();
+          const opt = `<option value="${doc.id}">${c.nome}</option>`;
+          cursoSelect.innerHTML += opt;
+          filterCurso.innerHTML += opt;
+        });
+      } catch (err) {
+        showPopup('Erro ao carregar cursos.', false);
+      }
+    }
+
+    // CARREGAR PROFESSORES
+    async function loadProfessores() {
+      try {
+        const snap = await db.collection("usuarios").where("role", "==", "professor").get();
+        professorSelect.innerHTML = '<option value="">Selecione um professor</option>';
+        filterProfessor.innerHTML = '<option value="">Todos os Professores</option>';
+        snap.forEach(doc => {
+          const p = doc.data();
+          const opt = `<option value="${doc.id}">${p.nome}</option>`;
+          professorSelect.innerHTML += opt;
+          filterProfessor.innerHTML += opt;
+        });
+      } catch (err) {
+        showPopup('Erro ao carregar professores.', false);
+      }
+    }
+
+    // CARREGAR TURMAS
+    async function loadTurmas(cursoId = "", nome = "", professorId = "") {
+      loading.classList.add('active');
+      tableError.textContent = '';
+      turmasTable.innerHTML = '';
+
+      try {
+        let q = db.collection("turmas");
+        if (cursoId) q = q.where("cursoId", "==", cursoId);
+        if (professorId) q = q.where("professorId", "==", professorId);
+        const snap = await q.get();
+
+        if (snap.empty) {
+          turmasTable.innerHTML = '<tr><td colspan="4" class="empty-state">Nenhuma turma encontrada.</td></tr>';
+          loading.classList.remove('active');
+          return;
+        }
+
+        const rows = [];
+        for (const doc of snap.docs) {
+          const t = doc.data();
+          if (nome && !t.nome.toLowerCase().includes(nome.toLowerCase())) continue;
+
+          const [cursoDoc, profDoc] = await Promise.all([
+            db.collection("cursos").doc(t.cursoId).get(),
+            db.collection("usuarios").doc(t.professorId).get()
+          ]);
+
+          rows.push(`
+            <tr class="slide-in">
+              <td>${t.nome}</td>
+              <td>${cursoDoc.data()?.nome || '—'}</td>
+              <td>${profDoc.data()?.nome || '—'}</td>
+              <td>
+                <button class="btn btn-danger delete-btn" data-id="${doc.id}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          `);
+        }
+
+        turmasTable.innerHTML = rows.join('');
+        attachDeleteListeners();
+      } catch (err) {
+        tableError.textContent = 'Erro ao carregar turmas.';
+        showPopup('Erro ao carregar turmas.', false);
+      } finally {
+        loading.classList.remove('active');
+      }
+    }
+
+    function attachDeleteListeners() {
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.dataset.id;
+          if (!confirm("Tem certeza que deseja excluir esta turma?")) return;
+
+          try {
+            await db.collection("turmas").doc(id).delete();
+            showPopup('Turma excluída com sucesso!');
+            loadTurmas(filterCurso.value, filterNome.value, filterProfessor.value);
+          } catch (err) {
+            showPopup('Erro ao excluir turma.', false);
+          }
+        };
+      });
+    }
+
+    // ADICIONAR TURMA
+    document.getElementById("turma-form").onsubmit = async e => {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value.trim();
+      const cursoId = cursoSelect.value;
+      const professorId = professorSelect.value;
+
+      if (!nome || !cursoId || !professorId) {
+        formError.textContent = 'Preencha todos os campos.';
+        return;
+      }
+
+      loading.classList.add('active');
+      formError.textContent = '';
+
+      try {
+        const exists = await db.collection("turmas")
+          .where("nome", "==", nome)
+          .where("cursoId", "==", cursoId)
+          .get();
+
+        if (!exists.empty) {
+          formError.textContent = 'Turma já existe neste curso.';
+          loading.classList.remove('active');
+          return;
+        }
+
+        await db.collection("turmas").add({ nome, cursoId, professorId });
+        animateButtonSuccess(addBtn);
+        showPopup('Turma adicionada com sucesso!');
+        e.target.reset();
+        loadTurmas();
+      } catch (err) {
+        formError.textContent = 'Erro ao adicionar turma.';
+        showPopup('Erro ao adicionar.', false);
+      } finally {
+        loading.classList.remove('active');
+      }
+    };
+
+    // EXPORTAR CSV
+    exportCsvButton.onclick = async () => {
+      let csv = 'Nome,Curso,Professor\n';
+      let q = db.collection("turmas");
+      if (filterCurso.value) q = q.where("cursoId", "==", filterCurso.value);
+      if (filterProfessor.value) q = q.where("professorId", "==", filterProfessor.value);
+      const snap = await q.get();
+
+      for (const doc of snap.docs) {
+        const t = doc.data();
+        const [cursoDoc, profDoc] = await Promise.all([
+          db.collection("cursos").doc(t.cursoId).get(),
+          db.collection("usuarios").doc(t.professorId).get()
+        ]);
+        csv += `"${t.nome}","${cursoDoc.data()?.nome || ''}","${profDoc.data()?.nome || ''}"\n`;
+      }
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), { href: url, download: 'turmas.csv' });
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    filterButton.onclick = () => loadTurmas(filterCurso.value, filterNome.value, filterProfessor.value);
+
+    // AUTENTICAÇÃO
+    auth.onAuthStateChanged(user => {
+      if (!user) return (window.location.href = '/login.html');
+      db.collection("usuarios").doc(user.uid).get()
+        .then(doc => {
+          if (doc.exists && doc.data().role === "admin") {
+            loadCursos();
+            loadProfessores();
+            loadTurmas();
+          } else {
+            window.location.href = '/login.html';
+          }
+        })
+        .catch(() => window.location.href = '/login.html');
+    });
+  </script>
+</body>
+</html>

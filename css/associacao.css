@@ -1,0 +1,403 @@
+/* Reset básico para consistência entre navegadores */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Variáveis CSS para cores e tamanhos */
+:root {
+  --primary-color: #2c3e50; /* Cor principal (escura) */
+  --secondary-color: #3498db; /* Cor de destaque */
+  --text-color: #333; /* Cor do texto principal */
+  --background-color: #f4f4f9; /* Fundo claro */
+  --card-border: #e0e0e0; /* Borda dos cards */
+  --error-color: #e74c3c; /* Cor para mensagens de erro */
+  --success-color: #2ecc71; /* Cor para itens públicos */
+  --pinned-color: #e74c3c; /* Cor para posts fixados */
+  --font-size-base: 16px;
+  --font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* Estilos gerais do body */
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--text-color);
+  background-color: var(--background-color);
+  line-height: 1.6;
+}
+
+/* Estilos do header */
+header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* Navegação */
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#user-area {
+  font-size: 0.9rem;
+}
+
+#user-area a {
+  color: white;
+  text-decoration: none;
+  margin: 0 0.5rem;
+  transition: color 0.3s ease;
+}
+
+#user-area a:hover {
+  color: var(--secondary-color);
+}
+
+#mobile-menu {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: block;
+}
+
+#nav-list {
+  list-style: none;
+  display: none;
+  flex-direction: column;
+  background-color: var(--primary-color);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  padding: 1rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#nav-list.active {
+  display: flex;
+}
+
+#nav-list li {
+  margin: 0.5rem 0;
+}
+
+#nav-list a {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 0.5rem;
+  display: block;
+  transition: background-color 0.3s ease;
+}
+
+#nav-list a:hover,
+#nav-list a.active {
+  background-color: var(--secondary-color);
+  border-radius: 4px;
+}
+
+/* Main */
+main {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+/* Seções administrativas */
+.admin-section {
+  display: none;
+}
+
+.admin-section.active {
+  display: block;
+}
+
+#access-denied {
+  color: var(--error-color);
+  text-align: center;
+  padding: 1rem;
+  background-color: #fff;
+  border: 1px solid var(--error-color);
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+/* Estilos dos cards (posts, enquetes, documentos, fórum, eventos) */
+.post-card,
+.enquete-card,
+.documento-card,
+.forum-message,
+.evento {
+  background-color: white;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.post-card:hover,
+.enquete-card:hover,
+.documento-card:hover,
+.forum-message:hover,
+.evento:hover {
+  transform: translateY(-2px);
+}
+
+.post-card h3,
+.enquete-card h3,
+.documento-card h3,
+.evento h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  color: var(--primary-color);
+}
+
+.pinned {
+  color: var(--pinned-color);
+  font-weight: bold;
+  margin-left: 0.5rem;
+}
+
+.public {
+  color: var(--success-color);
+  font-style: italic;
+  margin-left: 0.5rem;
+}
+
+.post-meta,
+.documento-meta,
+.forum-meta {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+/* Formulários */
+form {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--card-border);
+  margin-bottom: 1rem;
+}
+
+form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+form input[type="text"],
+form input[type="file"],
+form input[type="datetime-local"],
+form textarea,
+form select {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+form textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+form button {
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+form button:hover {
+  background-color: #2980b9;
+}
+
+/* Mensagens de erro */
+.error-message {
+  color: var(--error-color);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  display: none;
+}
+
+.error-message:not(.hidden) {
+  display: block;
+}
+
+/* Ações (botões de excluir, fixar, etc.) */
+.post-actions,
+.enquete-actions,
+.documento-actions,
+.evento-actions {
+  margin-top: 1rem;
+}
+
+.post-actions button,
+.enquete-actions button,
+.documento-actions button,
+.evento-actions button {
+  background-color: #ecf0f1;
+  color: var(--text-color);
+  border: 1px solid var(--card-border);
+  padding: 0.5rem 1rem;
+  margin-right: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.post-actions button:hover,
+.enquete-actions button:hover,
+.documento-actions button:hover,
+.evento-actions button:hover {
+  background-color: #dcdcdc;
+}
+
+.delete-post,
+.delete-enquete,
+.delete-documento,
+.delete-evento {
+  background-color: var(--error-color);
+  color: white;
+  border: none;
+}
+
+.delete-post:hover,
+.delete-enquete:hover,
+.delete-documento:hover,
+.delete-evento:hover {
+  background-color: #c0392b;
+}
+
+/* Progress bar para enquetes */
+progress {
+  width: 100%;
+  height: 1rem;
+  margin-top: 0.5rem;
+}
+
+progress::-webkit-progress-bar {
+  background-color: #ecf0f1;
+  border-radius: 4px;
+}
+
+progress::-webkit-progress-value {
+  background-color: var(--secondary-color);
+  border-radius: 4px;
+}
+
+progress::-moz-progress-bar {
+  background-color: var(--secondary-color);
+  border-radius: 4px;
+}
+
+/* Estilo do evento no calendário */
+.evento {
+  display: flex;
+  align-items: flex-start;
+}
+
+.evento-data {
+  width: 60px;
+  text-align: center;
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.evento-dia {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.evento-mes {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.evento-info {
+  margin-left: 1rem;
+  flex: 1;
+}
+
+/* Responsividade */
+@media (min-width: 769px) {
+  #nav-list {
+    display: flex;
+    flex-direction: row;
+    position: static;
+    width: auto;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  #nav-list li {
+    margin: 0 1rem;
+  }
+
+  #mobile-menu {
+    display: none;
+  }
+
+  main {
+    padding: 0 2rem;
+  }
+
+  .post-card,
+  .enquete-card,
+  .documento-card,
+  .forum-message,
+  .evento {
+    padding: 2rem;
+  }
+}
+
+/* Acessibilidade */
+:focus {
+  outline: 2px solid var(--secondary-color);
+  outline-offset: 2px;
+}
+
+button:focus,
+a:focus {
+  outline: 2px solid var(--secondary-color);
+  outline-offset: 2px;
+}
+
+/* Estilo para links de documentos */
+.documento-card a {
+  color: var(--secondary-color);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.documento-card a:hover {
+  text-decoration: underline;
+}

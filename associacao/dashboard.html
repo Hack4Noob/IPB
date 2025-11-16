@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Associação de Estudantes - IPG">
+  <title>Associação de Estudantes - IPG</title>
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/mobile-menu-unified.css">
+  <link rel="stylesheet" href="/associacao/css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://widget.cloudinary.com/v2.0/cloudinary-core.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Associação de Estudantes</h1>
+      </div>
+      <nav>
+        <ul id="nav-list" role="navigation">
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/cursos.html">Cursos</a></li>
+          <li><a href="/sobre.html">Sobre</a></li>
+          <li><a href="/associacao/dashboard.html" class="active" aria-current="page">Associação</a></li>
+          <li><a href="/contato.html">Contato</a></li>
+          <li id="user-area"><a href="/login.html" aria-label="Área do Usuário">Área do Usuário</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu" aria-label="Abrir menu de navegação">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+
+  <main class="associacao-main">
+    <section class="page-header">
+      <div class="container">
+        <h1>Associação de Estudantes</h1>
+        <p>Centro de atividades, notícias e eventos da comunidade estudantil do IPG</p>
+      </div>
+    </section>
+
+    <div id="access-denied" class="access-denied-container" style="display: none;">
+      <div class="container">
+        <div class="access-denied-card">
+          <i class="fas fa-lock"></i>
+          <h2>Acesso Restrito</h2>
+          <p>Você não tem permissão para acessar esta área. Entre em contato com a administração.</p>
+          <a href="/index.html" class="btn">Voltar ao Início</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="main-content" class="associacao-content">
+      <aside class="sidebar">
+        <nav class="sidebar-nav">
+          <button class="sidebar-link active" data-section="galeria" aria-label="Ir para galeria">
+            <i class="fas fa-images"></i>
+            <span>Galeria</span>
+          </button>
+          <button class="sidebar-link" data-section="noticias" aria-label="Ir para notícias">
+            <i class="fas fa-newspaper"></i>
+            <span>Notícias</span>
+          </button>
+          <button class="sidebar-link" data-section="anuncios" aria-label="Ir para anúncios">
+            <i class="fas fa-megaphone"></i>
+            <span>Anúncios</span>
+          </button>
+          <button class="sidebar-link" data-section="cursos" aria-label="Ir para cursos">
+            <i class="fas fa-book"></i>
+            <span>Cursos</span>
+          </button>
+          <button class="sidebar-link" data-section="eventos" aria-label="Ir para eventos">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Eventos</span>
+          </button>
+        </nav>
+      </aside>
+
+      <div class="content-area">
+        <!-- GALERIA SECTION -->
+        <section id="galeria" class="content-section active">
+          <div class="section-header">
+            <h2>Galeria de Fotos</h2>
+            <div id="galeria-admin-controls" class="admin-controls" style="display: none;">
+              <button id="add-galeria-btn" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Adicionar Foto
+              </button>
+            </div>
+          </div>
+          <div id="galeria-form-container" style="display: none;" class="content-form">
+            <form id="galeria-form" class="upload-form">
+              <div class="form-group">
+                <label for="galeria-titulo">Título da Foto</label>
+                <input type="text" id="galeria-titulo" required>
+              </div>
+              <div class="form-group">
+                <label for="galeria-descricao">Descrição</label>
+                <textarea id="galeria-descricao" rows="3"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="galeria-categoria">Categoria</label>
+                <select id="galeria-categoria" required>
+                  <option value="">Selecionar categoria</option>
+                  <option value="campus">Campus</option>
+                  <option value="eventos">Eventos</option>
+                  <option value="alunos">Alunos</option>
+                  <option value="laboratorios">Laboratórios</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="galeria-foto">Foto (via Cloudinary)</label>
+                <div id="galeria-upload-widget" class="upload-widget"></div>
+                <input type="hidden" id="galeria-foto-url">
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Publicar Foto</button>
+                <button type="button" class="btn btn-secondary" id="cancel-galeria">Cancelar</button>
+              </div>
+            </form>
+          </div>
+          <div id="galeria-container" class="gallery-grid"></div>
+        </section>
+
+        <!-- NOTÍCIAS SECTION -->
+        <section id="noticias" class="content-section">
+          <div class="section-header">
+            <h2>Notícias</h2>
+            <div id="noticias-admin-controls" class="admin-controls" style="display: none;">
+              <button id="add-noticia-btn" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Adicionar Notícia
+              </button>
+            </div>
+          </div>
+          <div id="noticias-form-container" style="display: none;" class="content-form">
+            <form id="noticias-form" class="post-form">
+              <div class="form-group">
+                <label for="noticia-titulo">Título</label>
+                <input type="text" id="noticia-titulo" required>
+              </div>
+              <div class="form-group">
+                <label for="noticia-conteudo">Conteúdo</label>
+                <textarea id="noticia-conteudo" rows="5" required></textarea>
+              </div>
+              <div class="form-group">
+                <label for="noticia-imagem-url">URL da Imagem</label>
+                <input type="url" id="noticia-imagem-url">
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Publicar Notícia</button>
+                <button type="button" class="btn btn-secondary" id="cancel-noticia">Cancelar</button>
+              </div>
+            </form>
+          </div>
+          <div id="noticias-container" class="posts-grid"></div>
+        </section>
+
+        <!-- ANÚNCIOS SECTION -->
+        <section id="anuncios" class="content-section">
+          <div class="section-header">
+            <h2>Anúncios</h2>
+            <div id="anuncios-admin-controls" class="admin-controls" style="display: none;">
+              <button id="add-anuncio-btn" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Novo Anúncio
+              </button>
+            </div>
+          </div>
+          <div id="anuncios-form-container" style="display: none;" class="content-form">
+            <form id="anuncios-form" class="post-form">
+              <div class="form-group">
+                <label for="anuncio-titulo">Título</label>
+                <input type="text" id="anuncio-titulo" required>
+              </div>
+              <div class="form-group">
+                <label for="anuncio-conteudo">Descrição</label>
+                <textarea id="anuncio-conteudo" rows="4" required></textarea>
+              </div>
+              <div class="form-group">
+                <label for="anuncio-imagem-url">Imagem (URL)</label>
+                <input type="url" id="anuncio-imagem-url">
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Publicar Anúncio</button>
+                <button type="button" class="btn btn-secondary" id="cancel-anuncio">Cancelar</button>
+              </div>
+            </form>
+          </div>
+          <div id="anuncios-container" class="posts-grid"></div>
+        </section>
+
+        <!-- CURSOS SECTION -->
+        <section id="cursos" class="content-section">
+          <div class="section-header">
+            <h2>Cursos Oferecidos</h2>
+            <div id="cursos-admin-controls" class="admin-controls" style="display: none;">
+              <button id="add-curso-btn" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Novo Curso
+              </button>
+            </div>
+          </div>
+          <div id="cursos-form-container" style="display: none;" class="content-form">
+            <form id="cursos-form" class="post-form">
+              <div class="form-group">
+                <label for="curso-titulo">Título do Curso</label>
+                <input type="text" id="curso-titulo" required>
+              </div>
+              <div class="form-group">
+                <label for="curso-descricao">Descrição</label>
+                <textarea id="curso-descricao" rows="4" required></textarea>
+              </div>
+              <div class="form-group">
+                <label for="curso-duracao">Duração (em anos)</label>
+                <input type="number" id="curso-duracao" min="1" max="5" required>
+              </div>
+              <div class="form-group">
+                <label for="curso-imagem-url">Imagem (URL)</label>
+                <input type="url" id="curso-imagem-url">
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Publicar Curso</button>
+                <button type="button" class="btn btn-secondary" id="cancel-curso">Cancelar</button>
+              </div>
+            </form>
+          </div>
+          <div id="cursos-container" class="posts-grid"></div>
+        </section>
+
+        <!-- EVENTOS SECTION -->
+        <section id="eventos" class="content-section">
+          <div class="section-header">
+            <h2>Eventos</h2>
+            <div id="eventos-admin-controls" class="admin-controls" style="display: none;">
+              <button id="add-evento-btn" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Novo Evento
+              </button>
+            </div>
+          </div>
+          <div id="eventos-form-container" style="display: none;" class="content-form">
+            <form id="eventos-form" class="post-form">
+              <div class="form-group">
+                <label for="evento-titulo">Título do Evento</label>
+                <input type="text" id="evento-titulo" required>
+              </div>
+              <div class="form-group">
+                <label for="evento-descricao">Descrição</label>
+                <textarea id="evento-descricao" rows="4" required></textarea>
+              </div>
+              <div class="form-group">
+                <label for="evento-data">Data do Evento</label>
+                <input type="datetime-local" id="evento-data" required>
+              </div>
+              <div class="form-group">
+                <label for="evento-imagem-url">Imagem (URL)</label>
+                <input type="url" id="evento-imagem-url">
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Publicar Evento</button>
+                <button type="button" class="btn btn-secondary" id="cancel-evento">Cancelar</button>
+              </div>
+            </form>
+          </div>
+          <div id="eventos-container" class="posts-grid"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-col">
+        <h3>IPG Associação</h3>
+        <p>Representando os estudantes do IPG desde 2007</p>
+      </div>
+      <div class="footer-col">
+        <h3>Contato</h3>
+        <p>Email: associacao@ipg-angola.com</p>
+        <p>Telefone: (+244) 940525856</p>
+      </div>
+      <div class="footer-col">
+        <h3>Redes Sociais</h3>
+        <div class="social-links">
+          <a href="https://facebook.com/ipg-angola" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+          <a href="https://instagram.com/ipg-angola" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/mobile-menu.js" defer></script>
+  <script src="/associacao/js/dashboard.js" defer></script>
+</body>
+</html>

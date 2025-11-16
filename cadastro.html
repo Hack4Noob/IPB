@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cadastre-se no IPG - Instituto Politécnico da Graça para acessar nossos serviços.">
+  <meta name="keywords" content="IPG, cadastro, educação técnica, Benguela, Angola">
+  <meta name="author" content="IPG - Instituto Politécnico da Graça">
+  <title>Cadastro - IPG - Instituto Politécnico da Graça</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/cadastro.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Instituto Politécnico da Graça</h1>
+      </div>
+      <nav>
+        <ul id="nav-list" role="navigation">
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/sobre.html">Sobre</a></li>
+          <li><a href="/cursos.html">Cursos</a></li>
+          <li><a href="/cadastro.html" class="active" aria-current="page">Cadastre-se</a></li>
+          <li><a href="/contato.html">Contato</a></li>
+          <li><a href="/associacao/dashboard.html">Associação</a></li>
+          <li id="user-area"><a href="/login.html" aria-label="Área do Usuário">Área do Usuário</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu" aria-label="Abrir menu de navegação">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="cadastro">
+      <div class="container">
+        <h2>Cadastro</h2>
+        <div class="form-container fade-in">
+          <form id="cadastro-form">
+            <div class="form-group">
+              <label for="nome">Nome Complejto</label>
+              <input type="text" id="nome" name="nome" required aria-required="true" placeholder="Digite seu nome completo">
+            </div>
+            
+            <div class="form-group">
+              <label for="usuario">E-mail</label>
+              <input type="email" id="usuario" name="usuario" required aria-required="true" placeholder="Digite seu e-mail">
+            </div>
+            
+            <div class="form-group">
+              <label for="senha">Senha</label>
+              <input type="password" id="senha" name="senha" required aria-required="true" placeholder="Digite sua senha">
+            </div>
+            
+            <div class="form-group">
+              <label for="role">Tipo de Usuário</label>
+              <select id="tipo-usuario" name="role" required aria-required="true">
+                <option value="">Selecione</option>
+                <option value="aluno">Aluno</option>
+                <option value="professor">Professor</option>
+                <option value="secretaria">Secretaria</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+
+            <!-- Campo Disciplina (apenas professor) -->
+            <div class="form-group" id="disciplina-group" style="display: none;">
+              <label for="disciplina" id="disciplina-label">Disciplina</label>
+              <input type="text" id="disciplina" name="disciplina" placeholder="Digite sua disciplina">
+            </div>
+
+            <!-- Campo Período -->
+            <div class="form-group" id="periodo-group" style="display: none;">
+              <label for="periodo">Período</label>
+              <select id="periodo" name="periodo">
+                <option value="">Selecione</option>
+                <option value="manha">Manhã</option>
+                <option value="tarde">Tarde</option>
+              </select>
+            </div>
+
+            <!-- Campo Classe -->
+            <div class="form-group" id="classe-group" style="display: none;">
+              <label for="classe">Classe</label>
+              <select id="classe" name="classe">
+                <option value="">Selecione</option>
+                <option value="10ª">10ª Classe</option>
+                <option value="11ª">11ª Classe</option>
+                <option value="12ª">12ª Classe</option>
+                <option value="13ª">13ª Classe</option>
+              </select>
+            </div>
+
+            <!-- Campo Cursos -->
+            <div class="form-group" id="curso-group" style="display: none;">
+              <label for="curso">Curso(s)</label>
+              <select id="curso" name="curso" multiple>
+                <option value="Gestão do Ambiente">Gestão do Ambiente</option>
+                <option value="Energias Renováveis">Energias Renováveis</option>
+                <option value="Energias e Instalações Eléctricas">Energias e Instalações Eléctricas</option>
+                <option value="Frio e Climatização">Frio e Climatização</option>
+                <option value="Electrónica Industrial e Automação">Electrónica Industrial e Automação</option>
+              </select>
+              <small id="cursoHelp" style="color:#666;font-size:0.9em;"></small>
+            </div>
+
+            <!-- Campo Disciplinas (preenchido automaticamente) -->
+            <div class="form-group" id="disciplinas-group" style="display:none;">
+              <label>Disciplinas</label>
+              <ul id="disciplinas-list" style="padding-left:20px;list-style-type:disc;"></ul>
+            </div>
+
+            <button type="submit" class="btn" aria-label="Cadastrar">Cadastrar</button>
+            <p class="form-link">Já tem uma conta? <a href="/login.html" aria-label="Fazer login">Faça login</a></p>
+            <div id="error-message" class="form-message"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-col">
+        <h3>IPG - Instituto Politécnico da Graça</h3>
+        <p>Rua da Educação, 123 - Bairro Nossa Senhora da Graça</p>
+        <p>Cidade de Benguela, Angola</p>
+        <p>CEP: 12345-678</p>
+      </div>
+      <div class="footer-col">
+        <h3>Horário de Funcionamento</h3>
+        <p>Segunda a Sexta: 7h às 15h</p>
+        <p>Sábado: 8h às 12h</p>
+        <p>Domingo: Fechado</p>
+      </div>
+      <div class="footer-col">
+        <h3>Redes Sociais</h3>
+        <div class="social-links">
+          <a href="https://facebook.com/ipg-angola" aria-label="Facebook do IPG"><i class="fab fa-facebook"></i></a>
+          <a href="https://instagram.com/ipg-angola" aria-label="Instagram do IPG"><i class="fab fa-instagram"></i></a>
+          <a href="https://twitter.com/ipg-angola" aria-label="Twitter do IPG"><i class="fab fa-twitter"></i></a>
+          <a href="https://youtube.com/ipg-angola" aria-label="YouTube do IPG"><i class="fab fa-youtube"></i></a>
+        </div>
+        <p><a href="mailto:contato@ipg-angola.com" aria-label="Enviar e-mail para o IPG">contato@ipg-angola.com</a></p>
+        <p>(+244) 940525856</p>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2025 IPG - Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Firebase e scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script>
+    // Mapeamento cursos -> disciplinas
+    const cursosDisciplinas = {
+      "Gestão do Ambiente": ["Português","Inglês ou Francês","Empreendedorismo","Ordenamento do Território","Conservação da Natureza","Formação Integradoras","Atitudes","Ecoturismo","Educação Física","Matemática","Química","Biologia","Qualidade Ambiental","Projetos em Ambiente","Projeto Tecnológico","Estágio Curricular Supervisionado"],
+      "Energias Renováveis": ["Português","Inglês ou Francês","Formação Integradoras","Educação Física","Matemática","Física","Química","Informática","Empreendedorismo","Eletricidade","Desenho Técnico","Tecnologias e Processos","Organização e Gestão Industrial","Projeto Tecnológico","Estágio Curricular Supervisionado"],
+      "Energias e Instalações Eléctricas": ["Português","Inglês ou Francês","Formação de Atitudes","Educação Física","Matemática","Física","Química","Informática","Máquinas Eléctricas","Instalações Eléctricas","Tecnologias Eléctricas","Electricidade e Electrónica","Desenho Técnico","Tecnologias e Processos","Empreendedorismo","Organização e Gestão Industrial","Práticas Oficinas e Laboratoriais","Projeto Tecnológico","Estágio Curricular Supervisionado"],
+      "Frio e Climatização": ["Português","Inglês ou Francês","Formação Integradoras","Educação Física","Empreendedorismo","Electricidade e Electrónica","Desenho Técnico","Atitudes","Tecnologias e Processos","Organização e Gestão Industrial","Projeto Tecnológico","Estágio Curricular Supervisionado","Matemática","Física","Química","Informática"],
+      "Electrónica Industrial e Automação": ["Português","Inglês ou Francês","Formação Integradoras","Educação Física","Matemática","Física","Química","Informática","Empreendedorismo","Electricidade e Electrónica","Desenho Técnico","Atitudes","Sistemas Digitais","Máquinas Eléctricas","Tecnologias de Comando","Tecnologias e Processos","Práticas Oficinas e Laboratoriais","Organização e Gestão Industrial","Projeto Tecnológico","Estágio Curricular Supervisionado"]
+    };
+
+    const tipoUsuario = document.getElementById('tipo-usuario');
+    const cursoGroup = document.getElementById('curso-group');
+    const cursoSelect = document.getElementById('curso');
+    const cursoHelp = document.getElementById('cursoHelp');
+    const periodoGroup = document.getElementById('periodo-group');
+    const classeGroup = document.getElementById('classe-group');
+    const disciplinasGroup = document.getElementById('disciplinas-group');
+    const disciplinasList = document.getElementById('disciplinas-list');
+
+    tipoUsuario.addEventListener('change', () => {
+      if (tipoUsuario.value === "aluno") {
+        cursoGroup.style.display = "block";
+        cursoSelect.multiple = false;
+        cursoHelp.textContent = "Selecione 1 curso.";
+        periodoGroup.style.display = "block";
+        classeGroup.style.display = "block";
+      } else if (tipoUsuario.value === "professor") {
+        cursoGroup.style.display = "block";
+        cursoSelect.multiple = true;
+        cursoHelp.textContent = "Selecione até 2 cursos.";
+        periodoGroup.style.display = "block";
+        classeGroup.style.display = "none";
+      } else {
+        cursoGroup.style.display = "none";
+        periodoGroup.style.display = "none";
+        classeGroup.style.display = "none";
+        disciplinasGroup.style.display = "none";
+      }
+    });
+
+    cursoSelect.addEventListener('change', () => {
+      disciplinasList.innerHTML = "";
+      let selecionados = Array.from(cursoSelect.selectedOptions).map(opt => opt.value);
+
+      if (tipoUsuario.value === "professor" && selecionados.length > 2) {
+        alert("Professor só pode escolher até 2 cursos.");
+        selecionados.pop().selected = false;
+      }
+
+      if (selecionados.length > 0) {
+        disciplinasGroup.style.display = "block";
+        selecionados.forEach(curso => {
+          if (cursosDisciplinas[curso]) {
+            cursosDisciplinas[curso].forEach(disc => {
+              const li = document.createElement("li");
+              li.textContent = disc;
+              disciplinasList.appendChild(li);
+            });
+          }
+        });
+      } else {
+        disciplinasGroup.style.display = "none";
+      }
+    });
+  </script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/ui-manager.js"></script>
+</body>
+</html>

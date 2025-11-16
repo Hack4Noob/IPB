@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notas - Aluno | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/aluno/css/notas.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li><a href="/aluno/dashboard.html">Dashboard</a></li>
+          <li><a href="/aluno/notas.html" class="active">Notas</a></li>
+          <li><a href="/aluno/presencas.html">Presenças</a></li>
+          <li><a href="/aluno/avisos.html">Avisos</a></li>
+          <li><a href="/aluno/perfil.html">Perfil</a></li>
+          <li><a href="/aluno/documentos.html">Documentos</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <section class="page-header">
+    <div class="container">
+      <h1>Minhas Notas</h1>
+      <p>Consulte suas notas por disciplina e trimestre.</p>
+    </div>
+  </section>
+  <section class="notas-content">
+    <div class="container">
+      <h2>Lista de Notas</h2>
+      <div class="filter-container">
+        <select id="filter-disciplina">
+          <option value="">Todas as Disciplinas</option>
+        </select>
+        <select id="filter-trimestre">
+          <option value="">Todos os Trimestres</option>
+          <option value="1">1º Trimestre</option>
+          <option value="2">2º Trimestre</option>
+          <option value="3">3º Trimestre</option>
+        </select>
+        <button id="filter-button">Filtrar</button>
+      </div>
+      <div id="average-summary">Média Geral: Carregando...</div>
+      <div id="loading-spinner">Carregando notas...</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Disciplina</th>
+            <th>Nota</th>
+            <th>Trimestre</th>
+          </tr>
+        </thead>
+        <tbody id="notas-table"></tbody>
+      </table>
+      <button id="export-csv">Exportar para CSV</button>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/content-manager.js"></script>
+  <script src="/js/data-manager.js"></script>
+  <script>
+    const db = firebase.firestore();
+    const notasTable = document.getElementById("notas-table");
+    const filterDisciplina = document.getElementById("filter-disciplina");
+    const filterTrimestre = document.getElementById("filter-trimestre");
+    const filterButton = document.getElementById("filter-button");
+    const exportCsv = document.getElementById("export-csv");
+    const loadingSpinner = document.getElementById("loading-spinner");
+    const averageSummary = document.getElementById("average-summary");
+
+    let notasData = [];
+
+    function loadNotas(disciplinaId = "", trimestre = "") {
+      loadingSpinner.style.display = 'block';
+      notasTable.innerHTML = '';
+      notasData = [];
+      let query = db.collection("notas").where("alunoId", "==", auth.currentUser.uid);
+      if (disciplinaId) query = query.where("disciplinaId", "==", disciplinaId);
+      if (trimestre) query = query.where("trimestre", "==", parseInt(trimestre));
+      query.get().then((querySnapshot) => {
+        let total = 0, count = 0;
+        querySnapshot.forEach((doc) => {
+          const nota = doc.data();
+          db.collection("disciplinas").doc(nota.disciplinaId).get().then((disciplinaDoc) => {
+            const row = `
+              <tr>
+                <td>${disciplinaDoc.data().nome}</td>
+                <td>${nota.valor}</td>
+                <td>${nota.trimestre}º Trimestre</td>
+              </tr>`;
+            notasTable.innerHTML += row;
+            notasData.push({
+              disciplina: disciplinaDoc.data().nome,
+              nota: nota.valor,
+              trimestre: nota.trimestre
+            });
+            total += nota.valor || 0;
+            count++;
+            const media = count > 0 ? (total / count).toFixed(1) : 'N/A';
+            averageSummary.textContent = `Média Geral: ${media}`;
+          });
+        });
+        loadingSpinner.style.display = 'none';
+      }).catch(error => {
+        console.error('Erro ao carregar notas:', error.message);
+        loadingSpinner.textContent = 'Erro ao carregar notas.';
+      });
+    }
+
+    function loadDisciplinas() {
+      db.collection("disciplinas").get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const option = document.createElement("option");
+          option.value = doc.id;
+          option.textContent = doc.data().nome;
+          filterDisciplina.appendChild(option);
+        });
+      }).catch(error => console.error('Erro ao carregar disciplinas:', error.message));
+    }
+
+    function exportToCSV(data, filename) {
+      const csv = ['Disciplina,Nota,Trimestre', ...data.map(row => `${row.disciplina},${row.nota},${row.trimestre}`)].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    }
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        loadDisciplinas();
+        loadNotas();
+      } else {
+        window.location.href = '/login.html';
+      }
+    });
+
+    filterButton.addEventListener('click', () => {
+      loadNotas(filterDisciplina.value, filterTrimestre.value);
+    });
+
+    exportCsv.addEventListener('click', () => {
+      console.log('Exportando notas para CSV');
+      exportToCSV(notasData, 'notas.csv');
+    });
+  </script>
+</body>
+</html>

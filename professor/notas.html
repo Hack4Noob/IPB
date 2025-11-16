@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notas - Professor | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/professor/css/notas.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <!-- Link de salto para acessibilidade -->
+  <a class="skip-link sr-only" href="#main">Pular para o conteúdo</a>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li><a href="/professor/dashboard.html">Dashboard</a></li>
+          <li><a href="/professor/turmas.html">Turmas</a></li>
+          <li><a href="/professor/notas.html" class="active">Notas</a></li>
+          <li><a href="/professor/presencas.html">Presenças</a></li>
+          <li><a href="/professor/avisos.html">Avisos</a></li>
+          <li><a href="/professor/estatisticas.html">Estatísticas</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <section class="page-header" id="main" tabindex="-1">
+    <div class="container">
+      <h1>Lançar Notas</h1>
+      <p>Registre as notas dos alunos por disciplina.</p>
+    </div>
+  </section>
+  <section class="form-container">
+    <div class="container">
+      <h2>Registrar Nota</h2>
+      <form id="nota-form">
+        <label for="aluno">Aluno</label>
+        <select id="aluno" required>
+          <option value="">Selecione um aluno</option>
+        </select>
+        <label for="disciplina">Disciplina</label>
+        <select id="disciplina" required>
+          <option value="">Selecione uma disciplina</option>
+        </select>
+        <label for="valor">Nota</label>
+        <input type="number" id="valor" placeholder="Digite a nota (0-20)" min="0" max="20" step="0.1" required>
+        <label for="trimestre">Trimestre</label>
+        <select id="trimestre" required>
+          <option value="1">1º Trimestre</option>
+          <option value="2">2º Trimestre</option>
+          <option value="3">3º Trimestre</option>
+        </select>
+        <button type="submit" class="btn">Registrar</button>
+      </form>
+      <div id="error-message" class="error-message" aria-live="assertive" tabindex="-1" style="display:none"></div>
+    </div>
+  </section>
+  <section class="table-container">
+    <div class="container">
+      <h2>Lista de Notas</h2>
+      <div class="filter-container">
+        <select id="filter-aluno">
+          <option value="">Todos os Alunos</option>
+        </select>
+        <select id="filter-disciplina">
+          <option value="">Todas as Disciplinas</option>
+        </select>
+        <select id="filter-trimestre">
+          <option value="">Todos os Trimestres</option>
+          <option value="1">1º Trimestre</option>
+          <option value="2">2º Trimestre</option>
+          <option value="3">3º Trimestre</option>
+        </select>
+        <button id="filter-button">Filtrar</button>
+        <button id="export-csv">Exportar CSV</button>
+      </div>
+      <div id="loading-spinner" class="loading-spinner" aria-live="polite" style="display:none">Carregando notas...</div>
+      <div id="error-message-table" class="error-message" role="alert" aria-live="assertive" tabindex="-1" style="display:none"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Aluno</th>
+            <th>Disciplina</th>
+            <th>Nota</th>
+            <th>Trimestre</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="notas-table"></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js" defer></script>
+  <script src="/js/firebase-config.js" defer></script>
+  <script src="/js/inicialize.js" defer></script>
+  <script src="/js/ui-manager.js" defer></script>
+  <script src="/js/auth-manager.js" defer></script>
+  <script src="/js/content-manager.js" defer></script>
+  <script src="/js/data-manager.js" defer></script>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const notasTable = document.getElementById("notas-table");
+    const alunoSelect = document.getElementById("aluno");
+    const disciplinaSelect = document.getElementById("disciplina");
+    const filterAluno = document.getElementById("filter-aluno");
+    const filterDisciplina = document.getElementById("filter-disciplina");
+    const filterTrimestre = document.getElementById("filter-trimestre");
+    const filterButton = document.getElementById("filter-button");
+    const exportCsvButton = document.getElementById("export-csv");
+    const errorMessage = document.getElementById("error-message");
+    const errorMessageTable = document.getElementById("error-message-table");
+    const loadingSpinner = document.getElementById("loading-spinner");
+
+    function showLoading() { loadingSpinner.style.display = 'block'; }
+    function hideLoading() { loadingSpinner.style.display = 'none'; }
+    function showError(msg, el) {
+      el.textContent = msg;
+      el.style.display = 'block';
+      el.setAttribute('tabindex','-1');
+      el.focus();
+    }
+    function hideError(el) {
+      el.textContent = '';
+      el.style.display = 'none';
+      el.removeAttribute('tabindex');
+    }
+    document.addEventListener('input', () => { hideError(errorMessage); hideError(errorMessageTable); });
+
+    async function loadSelects() {
+      alunoSelect.innerHTML = `<option value="">Selecione um aluno</option>`;
+      filterAluno.innerHTML = `<option value="">Todos os Alunos</option>`;
+      disciplinaSelect.innerHTML = `<option value="">Selecione uma disciplina</option>`;
+      filterDisciplina.innerHTML = `<option value="">Todas as Disciplinas</option>`;
+      try {
+        const alunosSnap = await db.collection("alunos").get();
+        alunosSnap.forEach(doc => {
+          const aluno = doc.data();
+          alunoSelect.innerHTML += `<option value="${doc.id}">${aluno.nome}</option>`;
+          filterAluno.innerHTML += `<option value="${doc.id}">${aluno.nome}</option>`;
+        });
+        const user = auth.currentUser;
+        if (!user) return;
+        const disciplinasSnap = await db.collection("disciplinas").where("professorId", "==", user.uid).get();
+        disciplinasSnap.forEach(doc => {
+          const disciplina = doc.data();
+          disciplinaSelect.innerHTML += `<option value="${doc.id}">${disciplina.nome}</option>`;
+          filterDisciplina.innerHTML += `<option value="${doc.id}">${disciplina.nome}</option>`;
+        });
+      } catch (err) {
+        showError('Erro ao carregar alunos/disciplinas: ' + err.message, errorMessage);
+      }
+    }
+
+    async function loadNotas(alunoId = "", disciplinaId = "", trimestre = "") {
+      showLoading();
+      hideError(errorMessageTable);
+      notasTable.innerHTML = '';
+      try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('Usuário não autenticado.');
+        // Buscar IDs das disciplinas do professor
+        const disciplinasSnap = await db.collection("disciplinas").where("professorId", "==", user.uid).get();
+        const disciplinaIds = disciplinasSnap.docs.map(doc => doc.id);
+        if (disciplinaIds.length === 0) {
+          notasTable.innerHTML = '<tr><td colspan="5">Nenhuma nota encontrada.</td></tr>';
+          hideLoading();
+          return;
+        }
+        // Montar query de notas
+        let query = db.collection("notas").where("disciplinaId", "in", disciplinaIds);
+        if (alunoId) query = query.where("alunoId", "==", alunoId);
+        if (disciplinaId) query = query.where("disciplinaId", "==", disciplinaId);
+        if (trimestre) query = query.where("trimestre", "==", trimestre);
+        const notasSnap = await query.get();
+        if (notasSnap.empty) {
+          notasTable.innerHTML = '<tr><td colspan="5">Nenhuma nota encontrada.</td></tr>';
+          hideLoading();
+          return;
+        }
+        // Carregar nomes dos alunos/disciplinas em lote
+        const rows = await Promise.all(notasSnap.docs.map(async doc => {
+          const nota = doc.data();
+          const alunoDoc = await db.collection("alunos").doc(nota.alunoId).get();
+          const disciplinaDoc = await db.collection("disciplinas").doc(nota.disciplinaId).get();
+          return {
+            id: doc.id,
+            aluno: alunoDoc.exists ? alunoDoc.data().nome : 'Aluno removido',
+            disciplina: disciplinaDoc.exists ? disciplinaDoc.data().nome : 'Disciplina removida',
+            valor: nota.valor,
+            trimestre: nota.trimestre
+          };
+        }));
+        notasTable.innerHTML = rows.map(r => `
+          <tr class="slide-in">
+            <td>${r.aluno}</td>
+            <td>${r.disciplina}</td>
+            <td>${r.valor}</td>
+            <td>${r.trimestre}º Trimestre</td>
+            <td><button class="delete-btn" data-id="${r.id}" aria-label="Excluir nota">Excluir</button></td>
+          </tr>
+        `).join('');
+        attachDeleteListeners();
+      } catch (err) {
+        showError('Erro ao carregar notas: ' + err.message, errorMessageTable);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    let deleteLock = false;
+    function attachDeleteListeners() {
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = () => {
+          if (deleteLock) return;
+          deleteLock = true;
+          const id = btn.getAttribute('data-id');
+          if (confirm("Tem certeza que deseja excluir esta nota?")) {
+            db.collection("notas").doc(id).delete()
+              .then(() => loadNotas(filterAluno.value, filterDisciplina.value, filterTrimestre.value))
+              .catch(error => {
+                showError('Erro ao excluir nota: ' + error.message, errorMessageTable);
+              })
+              .finally(() => { deleteLock = false; });
+          } else {
+            deleteLock = false;
+          }
+        };
+      });
+    }
+
+    let submitLock = false;
+    document.getElementById("nota-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (submitLock) return;
+      submitLock = true;
+      const alunoId = alunoSelect.value;
+      const disciplinaId = disciplinaSelect.value;
+      const valor = parseFloat(document.getElementById("valor").value);
+      const trimestre = document.getElementById("trimestre").value;
+      if (!alunoId || !disciplinaId || isNaN(valor) || valor < 0 || valor > 20) {
+        showError('Preencha todos os campos corretamente (nota entre 0 e 20).', errorMessage);
+        submitLock = false;
+        return;
+      }
+      showLoading();
+      hideError(errorMessage);
+      try {
+        await db.collection("notas").add({ alunoId, disciplinaId, valor, trimestre });
+        await loadNotas();
+        document.getElementById("nota-form").reset();
+        alert('Nota registrada com sucesso!');
+      } catch (err) {
+        showError('Erro ao registrar nota: ' + err.message, errorMessage);
+      } finally {
+        hideLoading();
+        submitLock = false;
+      }
+    });
+
+    function escapeCsvField(v) {
+      if (v == null) return '';
+      const s = String(v);
+      if (/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+      return s;
+    }
+
+    exportCsvButton.addEventListener('click', async () => {
+      const user = auth.currentUser;
+      if (!user) { showError('Usuário não autenticado.', errorMessageTable); return; }
+      showLoading();
+      try {
+        const disciplinasSnap = await db.collection("disciplinas").where("professorId", "==", user.uid).get();
+        const disciplinaIds = disciplinasSnap.docs.map(doc => doc.id);
+        if (disciplinaIds.length === 0) throw new Error('Nenhuma disciplina encontrada.');
+        const notasSnap = await db.collection("notas").where("disciplinaId", "in", disciplinaIds).get();
+        const rows = await Promise.all(notasSnap.docs.map(async doc => {
+          const nota = doc.data();
+          const alunoDoc = await db.collection("alunos").doc(nota.alunoId).get();
+          const disciplinaDoc = await db.collection("disciplinas").doc(nota.disciplinaId).get();
+          return [
+            alunoDoc.exists ? alunoDoc.data().nome : 'Aluno removido',
+            disciplinaDoc.exists ? disciplinaDoc.data().nome : 'Disciplina removida',
+            nota.valor,
+            nota.trimestre
+          ];
+        }));
+        if (rows.length === 0) {
+          showError('Nenhuma nota disponível para exportação.', errorMessageTable);
+          hideLoading();
+          return;
+        }
+        const header = ['Aluno','Disciplina','Nota','Trimestre'];
+        const csv = [header.map(escapeCsvField).join(','), ...rows.map(r => r.map(escapeCsvField).join(','))].join('\n');
+        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'notas.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        showError('Erro ao exportar CSV: ' + err.message, errorMessageTable);
+      } finally {
+        hideLoading();
+      }
+    });
+
+    filterButton.addEventListener('click', () => {
+      loadNotas(filterAluno.value, filterDisciplina.value, filterTrimestre.value);
+    });
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        loadSelects();
+        loadNotas();
+      } else {
+        window.location.href = '/login.html';
+      }
+    });
+  </script>
+</body>
+</html>

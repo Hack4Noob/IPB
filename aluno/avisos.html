@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avisos - Aluno | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/aluno/css/avisos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li><a href="/aluno/dashboard.html">Dashboard</a></li>
+          <li><a href="/aluno/notas.html">Notas</a></li>
+          <li><a href="/aluno/presencas.html">Presenças</a></li>
+          <li><a href="/aluno/avisos.html" class="active">Avisos</a></li>
+          <li><a href="/aluno/perfil.html">Perfil</a></li>
+          <li><a href="/aluno/documentos.html">Documentos</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <section class="page-header">
+    <div class="container">
+      <h1>Meus Avisos</h1>
+      <p>Consulte os avisos publicados pelos professores.</p>
+    </div>
+  </section>
+  <section class="avisos-content">
+    <div class="container">
+      <h2>Lista de Avisos</h2>
+      <div class="filter-container">
+        <select id="filter-lido">
+          <option value="">Todos os Avisos</option>
+          <option value="false">Não Lidos</option>
+          <option value="true">Lidos</option>
+        </select>
+        <button id="filter-button">Filtrar</button>
+      </div>
+      <div id="loading-spinner">Carregando avisos...</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Mensagem</th>
+            <th>Data</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="avisos-table"></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/content-manager.js"></script>
+  <script src="/js/data-manager.js"></script>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const avisosTable = document.getElementById("avisos-table");
+    const filterLido = document.getElementById("filter-lido");
+    const filterButton = document.getElementById("filter-button");
+    const loadingSpinner = document.getElementById("loading-spinner");
+
+    function loadAvisos(lido = "") {
+      loadingSpinner.style.display = 'block';
+      avisosTable.innerHTML = '';
+      let query = db.collection("avisos").where("destinatarioId", "==", auth.currentUser.uid);
+      if (lido) query = query.where("lido", "==", lido === "true");
+      query.get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const aviso = doc.data();
+          const row = `
+            <tr>
+              <td>${aviso.titulo}</td>
+              <td>${aviso.mensagem}</td>
+              <td>${new Date(aviso.data).toLocaleDateString()}</td>
+              <td>
+                ${!aviso.lido ? `<button class="mark-read-btn" data-id="${doc.id}">Marcar como Lido</button>` : 'Lido'}
+              </td>
+            </tr>`;
+          avisosTable.innerHTML += row;
+        });
+        document.querySelectorAll('.mark-read-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const avisoId = btn.getAttribute('data-id');
+            db.collection("avisos").doc(avisoId).update({ lido: true })
+              .then(() => loadAvisos(lido))
+              .catch(error => console.error('Erro ao marcar como lido:', error.message));
+          });
+        });
+        loadingSpinner.style.display = 'none';
+      }).catch(error => {
+        console.error('Erro ao carregar avisos:', error.message);
+        loadingSpinner.textContent = 'Erro ao carregar avisos.';
+      });
+    }
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        loadAvisos();
+      } else {
+        window.location.href = '/login.html';
+      }
+    });
+
+    filterButton.addEventListener('click', () => {
+      loadAvisos(filterLido.value);
+    });
+  </script>
+</body>
+</html>

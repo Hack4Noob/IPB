@@ -1,0 +1,264 @@
+/* Updated dashboard styles with modern design tokens and enhanced visual hierarchy */
+
+/* ESTILOS ESPECÍFICOS DO DASHBOARD — NÃO REDEFINE :root */
+
+/* ============================================================= */
+/* CABEÇALHO DA PÁGINA                                           */
+/* ============================================================= */
+.dashboard-page .page-header {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(0, 102, 204, 0.85)), 
+              url('/images/escola-hero.jpg') center/cover no-repeat;
+  color: var(--text-white);
+  text-align: center;
+  padding: 80px 20px;
+  position: relative;
+  isolation: isolate;
+  animation: fadeIn 1s ease-in;
+}
+
+.dashboard-page .page-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.dashboard-page .page-header > * {
+  position: relative;
+  z-index: 2;
+}
+
+.dashboard-page .page-header h1 {
+  font-size: clamp(1.75rem, 5vw, 2.75rem);
+  margin-bottom: var(--spacing-md);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.dashboard-page .page-header p {
+  font-size: clamp(0.875rem, 2.5vw, 1.125rem);
+  max-width: 600px;
+  margin: 0 auto;
+  opacity: 0.95;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* ============================================================= */
+/* CONTEÚDO DO DASHBOARD                                         */
+/* ============================================================= */
+.dashboard-page .dashboard-content {
+  padding: var(--spacing-xl) 0;
+  background-color: var(--background-light);
+  animation: fadeIn 1s ease-in;
+}
+
+.dashboard-page .dashboard-content h2 {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  position: relative;
+  color: var(--text-dark);
+  font-weight: 600;
+  letter-spacing: -0.25px;
+}
+
+.dashboard-page .dashboard-content h2::after {
+  content: '';
+  display: block;
+  width: 100px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  margin: var(--spacing-md) auto 0;
+  border-radius: 2px;
+}
+
+/* ============================================================= */
+/* GRID DE NÚMEROS                                               */
+/* ============================================================= */
+.dashboard-page .numeros-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.dashboard-page .numero-item {
+  background: var(--background-white);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 1px 3px var(--shadow-color);
+  text-align: center;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add animated accent bar on hover */
+.dashboard-page .numero-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dashboard-page .numero-item:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px var(--shadow-hover);
+  border-color: var(--primary-light);
+}
+
+.dashboard-page .numero-item:hover::before {
+  transform: scaleX(1);
+}
+
+.dashboard-page .numero-item h3 {
+  font-size: clamp(2rem, 6vw, 2.5rem);
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-sm);
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.dashboard-page .numero-item p {
+  font-size: 1rem;
+  color: var(--text-light);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* ============================================================= */
+/* MENSAGEM DE ERRO                                              */
+/* ============================================================= */
+.dashboard-page .msg-error {
+  color: var(--danger-color);
+  font-size: 0.875rem;
+  margin: var(--spacing-md) 0;
+  text-align: center;
+  font-weight: 500;
+  display: none;
+  padding: var(--spacing-md);
+  background-color: rgba(239, 68, 68, 0.1);
+  border-radius: var(--border-radius);
+  border-left: 4px solid var(--danger-color);
+}
+
+.dashboard-page .msg-error:not(:empty) {
+  display: block;
+  animation: slideIn 0.5s ease-in;
+}
+
+/* ============================================================= */
+/* SPINNER DE CARREGAMENTO                                       */
+/* ============================================================= */
+.dashboard-page #dashboard-loading {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  color: var(--text-light);
+  margin: var(--spacing-lg) 0;
+  padding: 20px;
+}
+
+.dashboard-page #dashboard-loading.active {
+  display: flex;
+}
+
+.dashboard-page #dashboard-loading::before {
+  content: '';
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--text-light);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 12px;
+}
+
+/* ============================================================= */
+/* ANIMAÇÕES                                                     */
+/* ============================================================= */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { 
+    transform: translateX(-20px); 
+    opacity: 0; 
+  }
+  to { 
+    transform: translateX(0); 
+    opacity: 1; 
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================= */
+/* RESPONSIVO                                                    */
+/* ============================================================= */
+@media (max-width: 768px) {
+  .dashboard-page .page-header {
+    padding: 60px 16px;
+  }
+
+  .dashboard-page .dashboard-content {
+    padding: var(--spacing-lg) 0;
+  }
+
+  .dashboard-page .numeros-grid {
+    gap: var(--spacing-md);
+    padding: 0 var(--spacing-sm);
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+
+  .dashboard-page .numero-item {
+    padding: var(--spacing-md);
+  }
+
+  .dashboard-page .numero-item h3 {
+    font-size: 1.75rem;
+  }
+
+  .dashboard-page .numero-item p {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-page .page-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .dashboard-page .page-header p {
+    font-size: 0.875rem;
+  }
+
+  .dashboard-page .dashboard-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-page .numeros-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-page .numero-item h3 {
+    font-size: 1.5rem;
+  }
+}

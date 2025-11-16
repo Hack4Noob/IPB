@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presenças - Aluno | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/aluno/css/presencas.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li><a href="/aluno/dashboard.html">Dashboard</a></li>
+          <li><a href="/aluno/notas.html">Notas</a></li>
+          <li><a href="/aluno/presencas.html" class="active">Presenças</a></li>
+          <li><a href="/aluno/avisos.html">Avisos</a></li>
+          <li><a href="/aluno/perfil.html">Perfil</a></li>
+          <li><a href="/aluno/documentos.html">Documentos</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <section class="page-header">
+    <div class="container">
+      <h1>Minhas Presenças</h1>
+      <p>Consulte suas presenças por disciplina.</p>
+    </div>
+  </section>
+  <section class="presencas-content">
+    <div class="container">
+      <h2>Lista de Presenças</h2>
+      <div class="filter-container">
+        <select id="filter-disciplina">
+          <option value="">Todas as Disciplinas</option>
+        </select>
+        <select id="filter-trimestre">
+          <option value="">Todos os Trimestres</option>
+          <option value="1">1º Trimestre</option>
+          <option value="2">2º Trimestre</option>
+          <option value="3">3º Trimestre</option>
+        </select>
+        <button id="filter-button">Filtrar</button>
+      </div>
+      <div id="frequency-summary">Frequência Geral: Carregando...</div>
+      <div id="loading-spinner">Carregando presenças...</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Disciplina</th>
+            <th>Data</th>
+            <th>Presente</th>
+          </tr>
+        </thead>
+        <tbody id="presencas-table"></tbody>
+      </table>
+      <button id="export-csv">Exportar para CSV</button>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/content-manager.js"></script>
+  <script src="/js/data-manager.js"></script>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const presencasTable = document.getElementById("presencas-table");
+    const loadingSpinner = document.getElementById("loading-spinner");
+    const frequencySummary = document.getElementById("frequency-summary");
+    const filterDisciplina = document.getElementById("filter-disciplina");
+    const filterTrimestre = document.getElementById("filter-trimestre");
+    const filterButton = document.getElementById("filter-button");
+    const exportCsv = document.getElementById("export-csv");
+
+    let presencasData = [];
+
+    function loadPresencas(disciplinaId = "", trimestre = "") {
+      loadingSpinner.style.display = 'block';
+      presencasTable.innerHTML = '';
+      presencasData = [];
+      let query = db.collection("presencas").where("alunoId", "==", auth.currentUser.uid);
+      if (disciplinaId) query = query.where("disciplinaId", "==", disciplinaId);
+      if (trimestre) query = query.where("trimestre", "==", parseInt(trimestre));
+      query.get().then((querySnapshot) => {
+        let presentes = 0, total = 0;
+        querySnapshot.forEach((doc) => {
+          const presenca = doc.data();
+          db.collection("disciplinas").doc(presenca.disciplinaId).get().then((disciplinaDoc) => {
+            const row = `
+              <tr>
+                <td>${disciplinaDoc.data().nome}</td>
+                <td>${new Date(presenca.data).toLocaleDateString()}</td>
+                <td>${presenca.presente ? "Sim" : "Não"}</td>
+              </tr>`;
+            presencasTable.innerHTML += row;
+            presencasData.push({
+              disciplina: disciplinaDoc.data().nome,
+              data: new Date(presenca.data).toLocaleDateString(),
+              presente: presenca.presente ? "Sim" : "Não",
+              trimestre: presenca.trimestre
+            });
+            presentes += presenca.presente ? 1 : 0;
+            total++;
+            const frequencia = total > 0 ? ((presentes / total) * 100).toFixed(0) + '%' : 'N/A';
+            frequencySummary.textContent = `Frequência Geral: ${frequencia}`;
+          });
+        });
+        loadingSpinner.style.display = 'none';
+      }).catch(error => {
+        console.error('Erro ao carregar presenças:', error.message);
+        loadingSpinner.textContent = 'Erro ao carregar presenças.';
+      });
+    }
+
+    function loadDisciplinas() {
+      db.collection("disciplinas").get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const option = document.createElement("option");
+          option.value = doc.id;
+          option.textContent = doc.data().nome;
+          filterDisciplina.appendChild(option);
+        });
+      }).catch(error => console.error('Erro ao carregar disciplinas:', error.message));
+    }
+
+    function exportToCSV(data, filename) {
+      const csv = ['Disciplina,Data,Presente,Trimestre', ...data.map(row => `${row.disciplina},${row.data},${row.presente},${row.trimestre}`)].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    }
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        loadDisciplinas();
+        loadPresencas();
+      } else {
+        window.location.href = '/login.html';
+      }
+    });
+
+    filterButton.addEventListener('click', () => {
+      loadPresencas(filterDisciplina.value, filterTrimestre.value);
+    });
+
+    exportCsv.addEventListener('click', () => {
+      console.log('Exportando presenças para CSV');
+      exportToCSV(presencasData, 'presencas.csv');
+    });
+  </script>
+</body>
+</html>

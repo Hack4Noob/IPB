@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Aluno | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/aluno/css/dashboard.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li class="home-link">
+            <a href="/index.html" title="Voltar para página principal">
+              <svg class="home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <path d="M9 22V12h6v10"/>
+              </svg>
+              Início
+            </a>
+          </li>
+          <li><a href="/aluno/dashboard.html" class="active">Dashboard</a></li>
+          <li><a href="/aluno/notas.html">Notas</a></li>
+          <li><a href="/aluno/presencas.html">Presenças</a></li>
+          <li><a href="/aluno/avisos.html">Avisos</a></li>
+          <li><a href="/aluno/perfil.html">Perfil</a></li>
+          <li><a href="/aluno/documentos.html">Documentos</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <!-- Ícone Hamburger (inicial) e X (para fechar) -->
+        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12h18"/>
+          <path d="M3 6h18"/>
+          <path d="M3 18h18"/>
+        </svg>
+        <svg class="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+          <path d="M18 6L6 18"/>
+          <path d="M6 6l12 12"/>
+        </svg>
+      </div>
+    </div>
+  </header>
+  <section class="page-header">
+    <div class="container">
+      <h1>Bem-vindo, Aluno</h1>
+      <p>Consulte suas notas, presenças, avisos e perfil.</p>
+    </div>
+  </section>
+  <section class="dashboard-content">
+    <div class="container">
+      <h2>Resumo</h2>
+      <div class="filter-container">
+        <select id="filter-periodo">
+          <option value="">Todos os Períodos</option>
+          <option value="1">1º Trimestre</option>
+          <option value="2">2º Trimestre</option>
+          <option value="3">3º Trimestre</option>
+        </select>
+        <button id="filter-button">Filtrar</button>
+      </div>
+      <div id="loading-spinner">Carregando dados...</div>
+      <div class="numeros-grid">
+        <div class="numero-item">
+          <h3>Carregando...</h3>
+          <p>Média Geral</p>
+        </div>
+        <div class="numero-item">
+          <h3>Carregando...</h3>
+          <p>Frequência</p>
+        </div>
+        <div class="numero-item">
+          <h3>Carregando...</h3>
+          <p>Avisos Não Lidos</p>
+        </div>
+      </div>
+      <button id="export-csv">Exportar Resumo (CSV)</button>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/content-manager.js"></script>
+  <script src="/js/data-manager.js"></script>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const numerosGrid = document.querySelector('.numeros-grid');
+    const filterPeriodo = document.getElementById('filter-periodo');
+    const filterButton = document.getElementById('filter-button');
+    const exportCsv = document.getElementById('export-csv');
+    const loadingSpinner = document.getElementById('loading-spinner');
+
+    let dashboardData = [];
+
+    function loadDashboardData(periodo = '') {
+      loadingSpinner.style.display = 'block';
+      dashboardData = [];
+      auth.onAuthStateChanged(user => {
+        if (!user) {
+          window.location.href = '/login.html';
+          return;
+        }
+        // Nome do usuário
+        db.collection('alunos').doc(user.uid).get().then(doc => {
+          if (doc.exists) {
+            document.querySelector('.page-header h1').textContent = `Bem-vindo, ${doc.data().nome || user.email}`;
+          }
+        }).catch(error => console.error('Erro ao carregar nome:', error.message));
+
+        // Média Geral
+        let notasQuery = db.collection('notas').where('alunoId', '==', user.uid);
+        if (periodo) notasQuery = notasQuery.where('trimestre', '==', parseInt(periodo));
+        notasQuery.get().then(querySnapshot => {
+          let total = 0, count = 0;
+          querySnapshot.forEach(doc => {
+            total += doc.data().valor || 0;
+            count++;
+            dashboardData.push({
+              tipo: 'Média Geral',
+              valor: doc.data().valor,
+              trimestre: doc.data().trimestre
+            });
+          });
+          const media = count > 0 ? (total / count).toFixed(1) : 'N/A';
+          numerosGrid.children[0].querySelector('h3').textContent = media;
+        }).catch(error => {
+          console.error('Erro ao carregar notas:', error.message);
+          numerosGrid.children[0].querySelector('h3').textContent = 'Erro';
+        });
+
+        // Frequência
+        let presencasQuery = db.collection('presencas').where('alunoId', '==', user.uid);
+        if (periodo) presencasQuery = presencasQuery.where('trimestre', '==', parseInt(periodo));
+        presencasQuery.get().then(querySnapshot => {
+          let presentes = 0, total = 0;
+          querySnapshot.forEach(doc => {
+            if (doc.data().presente) presentes++;
+            total++;
+            dashboardData.push({
+              tipo: 'Frequência',
+              presente: doc.data().presente ? 'Sim' : 'Não',
+              trimestre: doc.data().trimestre
+            });
+          });
+          const frequencia = total > 0 ? ((presentes / total) * 100).toFixed(0) + '%' : 'N/A';
+          numerosGrid.children[1].querySelector('h3').textContent = frequencia;
+        }).catch(error => {
+          console.error('Erro ao carregar presenças:', error.message);
+          numerosGrid.children[1].querySelector('h3').textContent = 'Erro';
+        });
+
+        // Avisos Não Lidos
+        db.collection('avisos').where('destinatarioId', '==', user.uid).where('lido', '==', false).get().then(querySnapshot => {
+          const avisos = querySnapshot.size;
+          numerosGrid.children[2].querySelector('h3').textContent = avisos;
+          dashboardData.push({ tipo: 'Avisos Não Lidos', quantidade: avisos });
+          loadingSpinner.style.display = 'none';
+        }).catch(error => {
+          console.error('Erro ao carregar avisos:', error.message);
+          numerosGrid.children[2].querySelector('h3').textContent = 'Erro';
+          loadingSpinner.style.display = 'none';
+        });
+      });
+    }
+
+    function exportToCSV(data, filename) {
+      const csv = ['Tipo,Valor,Trimestre', ...data.map(row => `${row.tipo},${row.valor || row.presente || row.quantidade},${row.trimestre || ''}`)].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    }
+
+    filterButton.addEventListener('click', () => {
+      loadDashboardData(filterPeriodo.value);
+    });
+
+    exportCsv.addEventListener('click', () => {
+      console.log('Exportando resumo para CSV');
+      exportToCSV(dashboardData, 'dashboard_resumo.csv');
+    });
+
+    loadDashboardData();
+  </script>
+</body>
+</html>

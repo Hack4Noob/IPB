@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presenças - Professor | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/professor/css/presencas.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <!-- Link de salto para acessibilidade -->
+  <a class="skip-link sr-only" href="#main">Pular para o conteúdo</a>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li><a href="/professor/dashboard.html">Dashboard</a></li>
+          <li><a href="/professor/turmas.html">Turmas</a></li>
+          <li><a href="/professor/notas.html">Notas</a></li>
+          <li><a href="/professor/presencas.html" class="active">Presenças</a></li>
+          <li><a href="/professor/avisos.html">Avisos</a></li>
+          <li><a href="/professor/estatisticas.html">Estatísticas</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <section class="page-header" id="main" tabindex="-1">
+    <div class="container">
+      <h1>Registrar Presenças</h1>
+      <p>Registre as presenças dos alunos por disciplina.</p>
+    </div>
+  </section>
+  <section class="form-container">
+    <div class="container">
+      <h2>Registrar Presença</h2>
+      <form id="presenca-form">
+        <label for="aluno">Aluno</label>
+        <select id="aluno" required>
+          <option value="">Selecione um aluno</option>
+        </select>
+        <label for="disciplina">Disciplina</label>
+        <select id="disciplina" required>
+          <option value="">Selecione uma disciplina</option>
+        </select>
+        <label for="data">Data</label>
+        <input type="date" id="data" required>
+        <label for="presente">Presente</label>
+        <select id="presente" required>
+          <option value="true">Sim</option>
+          <option value="false">Não</option>
+        </select>
+        <button type="submit" class="btn">Registrar</button>
+      </form>
+      <div id="error-message" class="error-message" aria-live="assertive" tabindex="-1" style="display:none"></div>
+    </div>
+  </section>
+  <section class="table-container">
+    <div class="container">
+      <h2>Lista de Presenças</h2>
+      <div class="filter-container">
+        <select id="filter-aluno">
+          <option value="">Todos os Alunos</option>
+        </select>
+        <select id="filter-disciplina">
+          <option value="">Todas as Disciplinas</option>
+        </select>
+        <input type="date" id="filter-data">
+        <select id="filter-presente">
+          <option value="">Todas as Presenças</option>
+          <option value="true">Presente</option>
+          <option value="false">Ausente</option>
+        </select>
+        <button id="filter-button">Filtrar</button>
+        <button id="export-csv">Exportar CSV</button>
+      </div>
+      <div id="loading-spinner" class="loading-spinner" aria-live="polite" style="display:none">Carregando presenças...</div>
+      <div id="error-message-table" class="error-message" role="alert" aria-live="assertive" tabindex="-1" style="display:none"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Aluno</th>
+            <th>Disciplina</th>
+            <th>Data</th>
+            <th>Presente</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="presencas-table"></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/content-manager.js"></script>
+  <script src="/js/data-manager.js"></script>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const presencasTable = document.getElementById("presencas-table");
+    const alunoSelect = document.getElementById("aluno");
+    const disciplinaSelect = document.getElementById("disciplina");
+    const filterAluno = document.getElementById("filter-aluno");
+    const filterDisciplina = document.getElementById("filter-disciplina");
+    const filterData = document.getElementById("filter-data");
+    const filterPresente = document.getElementById("filter-presente");
+    const filterButton = document.getElementById("filter-button");
+    const exportCsvButton = document.getElementById("export-csv");
+    const errorMessage = document.getElementById("error-message");
+    const errorMessageTable = document.getElementById("error-message-table");
+    const loadingSpinner = document.getElementById("loading-spinner");
+
+    function showLoading() { loadingSpinner.style.display = 'block'; }
+    function hideLoading() { loadingSpinner.style.display = 'none'; }
+    function showError(msg, el) {
+      el.textContent = msg;
+      el.style.display = 'block';
+      el.setAttribute('tabindex','-1');
+      el.focus();
+    }
+    function hideError(el) {
+      el.textContent = '';
+      el.style.display = 'none';
+      el.removeAttribute('tabindex');
+    }
+    document.addEventListener('input', () => { hideError(errorMessage); hideError(errorMessageTable); });
+
+    async function loadSelects() {
+      alunoSelect.innerHTML = `<option value="">Selecione um aluno</option>`;
+      filterAluno.innerHTML = `<option value="">Todos os Alunos</option>`;
+      disciplinaSelect.innerHTML = `<option value="">Selecione uma disciplina</option>`;
+      filterDisciplina.innerHTML = `<option value="">Todas as Disciplinas</option>`;
+      try {
+        const alunosSnap = await db.collection("alunos").get();
+        alunosSnap.forEach(doc => {
+          const aluno = doc.data();
+          alunoSelect.innerHTML += `<option value="${doc.id}">${aluno.nome}</option>`;
+          filterAluno.innerHTML += `<option value="${doc.id}">${aluno.nome}</option>`;
+        });
+        const user = auth.currentUser;
+        if (!user) return;
+        const disciplinasSnap = await db.collection("disciplinas").where("professorId", "==", user.uid).get();
+        disciplinasSnap.forEach(doc => {
+          const disciplina = doc.data();
+          disciplinaSelect.innerHTML += `<option value="${doc.id}">${disciplina.nome}</option>`;
+          filterDisciplina.innerHTML += `<option value="${doc.id}">${disciplina.nome}</option>`;
+        });
+      } catch (err) {
+        showError('Erro ao carregar alunos/disciplinas: ' + err.message, errorMessage);
+      }
+    }
+
+    async function loadPresencas(alunoId = "", disciplinaId = "", data = "", presente = "") {
+      showLoading();
+      hideError(errorMessageTable);
+      presencasTable.innerHTML = '';
+      try {
+        const user = auth.currentUser;
+        if (!user) throw new Error('Usuário não autenticado.');
+        // Buscar IDs das disciplinas do professor
+        const disciplinasSnap = await db.collection("disciplinas").where("professorId", "==", user.uid).get();
+        const disciplinaIds = disciplinasSnap.docs.map(doc => doc.id);
+        if (disciplinaIds.length === 0) {
+          presencasTable.innerHTML = '<tr><td colspan="5">Nenhuma presença encontrada.</td></tr>';
+          hideLoading();
+          return;
+        }
+        // Montar query de presenças
+        let query = db.collection("presencas").where("disciplinaId", "in", disciplinaIds);
+        if (alunoId) query = query.where("alunoId", "==", alunoId);
+        if (disciplinaId) query = query.where("disciplinaId", "==", disciplinaId);
+        if (data) query = query.where("data", "==", data);
+        if (presente) query = query.where("presente", "==", presente === "true");
+        const presencasSnap = await query.get();
+        if (presencasSnap.empty) {
+          presencasTable.innerHTML = '<tr><td colspan="5">Nenhuma presença encontrada.</td></tr>';
+          hideLoading();
+          return;
+        }
+        // Carregar nomes dos alunos/disciplinas em lote
+        const rows = await Promise.all(presencasSnap.docs.map(async doc => {
+          const presenca = doc.data();
+          const alunoDoc = await db.collection("alunos").doc(presenca.alunoId).get();
+          const disciplinaDoc = await db.collection("disciplinas").doc(presenca.disciplinaId).get();
+          return {
+            id: doc.id,
+            aluno: alunoDoc.exists ? alunoDoc.data().nome : 'Aluno removido',
+            disciplina: disciplinaDoc.exists ? disciplinaDoc.data().nome : 'Disciplina removida',
+            data: presenca.data,
+            presente: presenca.presente
+          };
+        }));
+        presencasTable.innerHTML = rows.map(r => `
+          <tr class="slide-in">
+            <td>${r.aluno}</td>
+            <td>${r.disciplina}</td>
+            <td>${new Date(r.data).toLocaleDateString()}</td>
+            <td>${r.presente ? "Sim" : "Não"}</td>
+            <td><button class="delete-btn" data-id="${r.id}" aria-label="Excluir presença">Excluir</button></td>
+          </tr>
+        `).join('');
+        attachDeleteListeners();
+      } catch (err) {
+        showError('Erro ao carregar presenças: ' + err.message, errorMessageTable);
+      } finally {
+        hideLoading();
+      }
+    }
+
+    let deleteLock = false;
+    function attachDeleteListeners() {
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = () => {
+          if (deleteLock) return;
+          deleteLock = true;
+          const id = btn.getAttribute('data-id');
+          if (confirm("Tem certeza que deseja excluir esta presença?")) {
+            db.collection("presencas").doc(id).delete()
+              .then(() => loadPresencas(filterAluno.value, filterDisciplina.value, filterData.value, filterPresente.value))
+              .catch(error => {
+                showError('Erro ao excluir presença: ' + error.message, errorMessageTable);
+              })
+              .finally(() => { deleteLock = false; });
+          } else {
+            deleteLock = false;
+          }
+        };
+      });
+    }
+
+    let submitLock = false;
+    document.getElementById("presenca-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (submitLock) return;
+      submitLock = true;
+      const alunoId = alunoSelect.value;
+      const disciplinaId = disciplinaSelect.value;
+      const data = document.getElementById("data").value;
+      const presente = document.getElementById("presente").value === "true";
+      if (!alunoId || !disciplinaId || !data) {
+        showError('Preencha todos os campos.', errorMessage);
+        submitLock = false;
+        return;
+      }
+      showLoading();
+      hideError(errorMessage);
+      try {
+        await db.collection("presencas").add({ alunoId, disciplinaId, data, presente });
+        await loadPresencas();
+        document.getElementById("presenca-form").reset();
+        alert('Presença registrada com sucesso!');
+      } catch (err) {
+        showError('Erro ao registrar presença: ' + err.message, errorMessage);
+      } finally {
+        hideLoading();
+        submitLock = false;
+      }
+    });
+
+    function escapeCsvField(v) {
+      if (v == null) return '';
+      const s = String(v);
+      if (/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+      return s;
+    }
+
+    exportCsvButton.addEventListener('click', async () => {
+      const user = auth.currentUser;
+      if (!user) { showError('Usuário não autenticado.', errorMessageTable); return; }
+      showLoading();
+      try {
+        const disciplinasSnap = await db.collection("disciplinas").where("professorId", "==", user.uid).get();
+        const disciplinaIds = disciplinasSnap.docs.map(doc => doc.id);
+        if (disciplinaIds.length === 0) throw new Error('Nenhuma disciplina encontrada.');
+        const presencasSnap = await db.collection("presencas").where("disciplinaId", "in", disciplinaIds).get();
+        const rows = await Promise.all(presencasSnap.docs.map(async doc => {
+          const presenca = doc.data();
+          const alunoDoc = await db.collection("alunos").doc(presenca.alunoId).get();
+          const disciplinaDoc = await db.collection("disciplinas").doc(presenca.disciplinaId).get();
+          return [
+            alunoDoc.exists ? alunoDoc.data().nome : 'Aluno removido',
+            disciplinaDoc.exists ? disciplinaDoc.data().nome : 'Disciplina removida',
+            new Date(presenca.data).toLocaleDateString(),
+            presenca.presente ? "Sim" : "Não"
+          ];
+        }));
+        if (rows.length === 0) {
+          showError('Nenhuma presença disponível para exportação.', errorMessageTable);
+          hideLoading();
+          return;
+        }
+        const header = ['Aluno','Disciplina','Data','Presente'];
+        const csv = [header.map(escapeCsvField).join(','), ...rows.map(r => r.map(escapeCsvField).join(','))].join('\n');
+        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'presencas.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        showError('Erro ao exportar CSV: ' + err.message, errorMessageTable);
+      } finally {
+        hideLoading();
+      }
+    });
+
+    filterButton.addEventListener('click', () => {
+      loadPresencas(filterAluno.value, filterDisciplina.value, filterData.value, filterPresente.value);
+    });
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        loadSelects();
+        loadPresencas();
+      } else {
+        window.location.href = '/login.html';
+      }
+    });
+  </script>
+</body>
+</html>

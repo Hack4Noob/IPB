@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios - Admin | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/admin/css/relatorios.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+  <!-- ============================================= -->
+  <!-- HEADER COM SIDEBAR VERTICAL (DESKTOP) -->
+  <!-- ============================================= -->
+  <header class="header-with-sidebar">
+    <div class="sidebar">
+      <div class="logo-sidebar">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG</h1>
+      </div>
+      <nav class="nav-sidebar">
+        <ul>
+          <li><a href="/admin/dashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+          <li><a href="/admin/cursos.html"><i class="fas fa-book"></i> Cursos</a></li>
+          <li><a href="/admin/turmas.html"><i class="fas fa-users"></i> Turmas</a></li>
+          <li><a href="/admin/disciplinas.html"><i class="fas fa-graduation-cap"></i> Disciplinas</a></li>
+          <li><a href="/admin/relatorios.html" class="active"><i class="fas fa-chart-bar"></i> Relatórios</a></li>
+          <li><a href="/admin/configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+          <li><a href="/admin/usuarios.html"><i class="fas fa-user-shield"></i> Usuários</a></li>
+          <li><a href="/logout.html"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- HEADER MOBILE -->
+    <div class="header-mobile">
+      <div class="container">
+        <div class="logo">
+          <img src="/images/logo.png" alt="IPG Logo">
+          <h1>IPG - Gestão Escolar</h1>
+        </div>
+        <nav class="nav-mobile">
+          <ul>
+            <li><a href="/admin/dashboard.html">Dashboard</a></li>
+            <li><a href="/admin/cursos.html">Cursos</a></li>
+            <li><a href="/admin/turmas.html">Turmas</a></li>
+            <li><a href="/admin/disciplinas.html">Disciplinas</a></li>
+            <li><a href="/admin/relatorios.html" class="active">Relatórios</a></li>
+            <li><a href="/admin/configuracoes.html">Configurações</a></li>
+            <li><a href="/admin/usuarios.html">Usuários</a></li>
+            <li><a href="/logout.html">Sair</a></li>
+          </ul>
+        </nav>
+        <div class="mobile-menu"><i class="fas fa-bars"></i></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================= -->
+  <!-- CONTEÚDO PRINCIPAL -->
+  <!-- ============================================= -->
+  <main class="relatorios-page">
+
+    <section class="page-header">
+      <div class="container">
+        <h1>Relatórios</h1>
+        <p>Visualize relatórios sobre matrículas, desempenho e mais.</p>
+      </div>
+    </section>
+
+    <!-- GRÁFICOS -->
+    <section class="charts-container">
+      <div class="container">
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>Matrículas por Curso</h3>
+            <div class="chart-wrapper">
+              <canvas id="barChart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3>Distribuição de Alunos</h3>
+            <div class="chart-wrapper">
+              <canvas id="pieChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TABELA DE RELATÓRIOS -->
+    <section class="table-container">
+      <div class="container">
+        <h2>Relatório de Matrículas</h2>
+
+        <div class="filter-container">
+          <div class="filter-group">
+            <label for="filter-curso">Curso</label>
+            <select id="filter-curso">
+              <option value="">Todos os Cursos</option>
+            </select>
+          </div>
+          <div class="actions-container">
+            <button id="filter-button" class="btn btn-primary">Filtrar</button>
+            <button id="export-csv" class="btn btn-primary">Exportar CSV</button>
+          </div>
+        </div>
+
+        <div id="relatorios-loading">Carregando relatórios...</div>
+        <div id="relatorios-error" class="msg-error"></div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Curso</th>
+                <th>Alunos Matriculados</th>
+                <th>Data</th>
+              </tr>
+            </thead>
+            <tbody id="relatorios-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>© 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Firebase + Chart.js -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/js/firebase-config.js"></script>
+
+  <!-- MENU MOBILE JS (IGUAL EM TODAS AS PÁGINAS) -->
+  <script>
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const navMobile = document.querySelector('.nav-mobile');
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+    document.body.appendChild(overlay);
+
+    mobileMenu.addEventListener('click', () => {
+      navMobile.classList.toggle('active');
+      overlay.classList.toggle('active');
+      mobileMenu.innerHTML = navMobile.classList.contains('active') 
+        ? '<i class="fas fa-times"></i>' 
+        : '<i class="fas fa-bars"></i>';
+    });
+
+    overlay.addEventListener('click', () => {
+      navMobile.classList.remove('active');
+      overlay.classList.remove('active');
+      mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+    });
+
+    document.querySelectorAll('.nav-mobile a').forEach(link => {
+      link.addEventListener('click', () => {
+        navMobile.classList.remove('active');
+        overlay.classList.remove('active');
+        mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+      });
+    });
+  </script>
+
+  <!-- RELATÓRIOS JS -->
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+
+    const relatoriosTable = document.getElementById("relatorios-table");
+    const filterCurso = document.getElementById("filter-curso");
+    const filterButton = document.getElementById("filter-button");
+    const exportCsvButton = document.getElementById("export-csv");
+    const errorDiv = document.getElementById("relatorios-error");
+    const loading = document.getElementById("relatorios-loading");
+
+    let barChart, pieChart;
+
+    // Carregar cursos no select
+    async function loadCursos() {
+      try {
+        const snap = await db.collection("cursos").get();
+        filterCurso.innerHTML = '<option value="">Todos os Cursos</option>';
+        snap.forEach(doc => {
+          const c = doc.data();
+          filterCurso.innerHTML += `<option value="${doc.id}">${c.nome}</option>`;
+        });
+      } catch (err) {
+        showError('Erro ao carregar cursos.');
+      }
+    }
+
+    // Carregar dados do relatório
+    async function loadRelatorios(cursoId = "") {
+      loading.classList.add('active');
+      errorDiv.textContent = '';
+      relatoriosTable.innerHTML = '';
+
+      try {
+        let q = db.collection("cursos");
+        if (cursoId) q = q.where(firebase.firestore.FieldPath.documentId(), "==", cursoId);
+        const snap = await q.get();
+
+        if (snap.empty) {
+          relatoriosTable.innerHTML = '<tr><td colspan="3" class="empty-state">Nenhum curso encontrado.</td></tr>';
+          loading.classList.remove('active');
+          return;
+        }
+
+        const rows = [];
+        const barData = { labels: [], values: [] };
+        const pieData = { labels: [], values: [] };
+
+        for (const doc of snap.docs) {
+          const c = doc.data();
+          const alunosSnap = await db.collection("alunos").where("curso", "==", doc.id).get();
+          const count = alunosSnap.size;
+
+          rows.push(`
+            <tr class="slide-in">
+              <td>${c.nome}</td>
+              <td>${count}</td>
+              <td>${new Date().toLocaleDateString('pt-BR')}</td>
+            </tr>
+          `);
+
+          barData.labels.push(c.nome);
+          barData.values.push(count);
+          pieData.labels.push(c.nome);
+          pieData.values.push(count);
+        }
+
+        relatoriosTable.innerHTML = rows.join('');
+        updateCharts(barData, pieData);
+      } catch (err) {
+        showError('Erro ao carregar relatórios.');
+      } finally {
+        loading.classList.remove('active');
+      }
+    }
+
+    function updateCharts(bar, pie) {
+      const ctxBar = document.getElementById('barChart').getContext('2d');
+      const ctxPie = document.getElementById('pieChart').getContext('2d');
+
+      if (barChart) barChart.destroy();
+      if (pieChart) pieChart.destroy();
+
+      barChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+          labels: bar.labels,
+          datasets: [{
+            label: 'Alunos Matriculados',
+            data: bar.values,
+            backgroundColor: 'rgba(52, 152, 219, 0.7)',
+            borderColor: 'rgba(52, 152, 219, 1)',
+            borderWidth: 1,
+            borderRadius: 6,
+          }]
+        },
+        options: { animation: { duration: 1500, easing: 'easeOutQuart' } }
+      });
+
+      pieChart = new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+          labels: pie.labels,
+          datasets: [{
+            data: pie.values,
+            backgroundColor: [
+              '#3498db', '#27ae60', '#f39c12', '#e74c3c', '#9b59b6', '#1abc9c'
+            ],
+            borderWidth: 2,
+            borderColor: '#fff',
+          }]
+        },
+        options: {
+          animation: { duration: 1800, easing: 'easeOutBounce' },
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    function showError(msg) {
+      errorDiv.textContent = msg;
+    }
+
+    exportCsvButton.onclick = async () => {
+      let csv = 'Curso,Alunos Matriculados,Data\n';
+      const cursoId = filterCurso.value;
+      let q = db.collection("cursos");
+      if (cursoId) q = q.where(firebase.firestore.FieldPath.documentId(), "==", cursoId);
+      const snap = await q.get();
+
+      for (const doc of snap.docs) {
+        const c = doc.data();
+        const alunosSnap = await db.collection("alunos").where("curso", "==", doc.id).get();
+        csv += `"${c.nome.replace(/"/g, '""')}","${alunosSnap.size}","${new Date().toLocaleDateString('pt-BR')}"\n`;
+      }
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), { href: url, download: 'relatorio_matriculas.csv' });
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    filterButton.onclick = () => loadRelatorios(filterCurso.value);
+
+    auth.onAuthStateChanged(user => {
+      if (!user) return (window.location.href = '/login.html');
+      db.collection("usuarios").doc(user.uid).get()
+        .then(doc => {
+          if (doc.exists && doc.data().role === "admin") {
+            loadCursos();
+            loadRelatorios();
+          } else {
+            window.location.href = '/login.html';
+          }
+        })
+        .catch(() => window.location.href = '/login.html');
+    });
+  </script>
+</body>
+</html>

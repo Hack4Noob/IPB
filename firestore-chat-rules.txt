@@ -1,0 +1,44 @@
+// Chat Security Rules - Add to your existing firestore.rules
+
+// Chat Messages subcollection rules
+match /turmas/{turmaId}/chats/{messageId} {
+  allow read: if isAuthenticated() && 
+              userIsInTurma(turmaId);
+  
+  allow create: if isAuthenticated() && 
+                request.auth.uid != null &&
+                request.resource.data.userId == request.auth.uid &&
+                request.resource.data.message is string &&
+                request.resource.data.message.size() > 0 &&
+                request.resource.data.message.size() <= 5000 &&
+                request.resource.data.timestamp != null;
+  
+  allow update: if isAuthenticated() &&
+                resource.data.userId == request.auth.uid &&
+                request.resource.data.userId == request.auth.uid &&
+                !('timestamp' in request.resource.data.diff(resource.data).changedKeys());
+  
+  allow delete: if isAuthenticated() &&
+                resource.data.userId == request.auth.uid;
+}
+
+// Users online status
+match /users_online/{userId} {
+  allow read: if isAuthenticated();
+  
+  allow create: if isAuthenticated() && 
+                request.auth.uid == userId &&
+                request.resource.data.userId == userId;
+  
+  allow update: if isAuthenticated() && 
+                resource.data.userId == request.auth.uid;
+  
+  allow delete: if isAuthenticated() && 
+                resource.data.userId == request.auth.uid;
+}
+
+// Helper function to check if user is in turma
+function userIsInTurma(turmaId) {
+  let userDoc = get(/databases/(default)/documents/usuarios/$(request.auth.uid));
+  return userDoc.data.turmas.hasAll([turmaId]);
+}

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alunos - Secretaria | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/secretaria/css/alunos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li><a href="/secretaria/dashboard.html">Dashboard</a></li>
+          <li><a href="/secretaria/alunos.html" class="active">Alunos</a></li>
+          <li><a href="/secretaria/documentos.html">Documentos</a></li>
+          <li><a href="/secretaria/pagamentos.html">Pagamentos</a></li>
+          <li><a href="/secretaria/relatorios.html">Relatórios</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <section class="page-header">
+    <div class="container">
+      <h1>Gerenciar Alunos</h1>
+      <p>Adicione, edite ou remova alunos do sistema.</p>
+    </div>
+  </section>
+  <section class="form-container">
+    <div class="container">
+      <h2>Adicionar Aluno</h2>
+      <form id="aluno-form">
+        <label for="nome">Nome</label>
+        <input type="text" id="nome" placeholder="Digite o nome do aluno" required>
+        <label for="matricula">Matrícula</label>
+        <input type="text" id="matricula" placeholder="Digite a matrícula" required>
+        <label for="curso">Curso</label>
+        <select id="curso" required>
+          <option value="">Selecione um curso</option>
+        </select>
+        <button type="submit" class="btn" aria-label="Adicionar aluno">Adicionar</button>
+      </form>
+      <div id="error-message" class="error-message"></div>
+    </div>
+  </section>
+  <section class="table-container">
+    <div class="container">
+      <h2>Lista de Alunos</h2>
+      <div class="filter-container">
+        <select id="filter-curso">
+          <option value="">Todos os Cursos</option>
+        </select>
+        <input type="text" id="filter-nome" placeholder="Buscar por nome">
+        <button id="filter-button" aria-label="Filtrar alunos">Filtrar</button>
+        <button id="export-csv" aria-label="Exportar para CSV">Exportar CSV</button>
+      </div>
+      <div id="loading-spinner">Carregando alunos...</div>
+      <div id="error-message-table" class="error-message"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Matrícula</th>
+            <th>Curso</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="alunos-table"></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/content-manager.js"></script>
+  <script src="/js/data-manager.js"></script>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const alunosTable = document.getElementById("alunos-table");
+    const cursoSelect = document.getElementById("curso");
+    const filterCurso = document.getElementById("filter-curso");
+    const filterNome = document.getElementById("filter-nome");
+    const filterButton = document.getElementById("filter-button");
+    const exportCsvButton = document.getElementById("export-csv");
+    const errorMessage = document.getElementById("error-message");
+    const errorMessageTable = document.getElementById("error-message-table");
+    const loadingSpinner = document.getElementById("loading-spinner");
+
+    function loadCursos() {
+      db.collection("cursos").get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const curso = doc.data();
+          cursoSelect.innerHTML += `<option value="${doc.id}">${curso.nome}</option>`;
+          filterCurso.innerHTML += `<option value="${doc.id}">${curso.nome}</option>`;
+        });
+      }).catch(error => {
+        errorMessage.textContent = 'Erro ao carregar cursos: ' + error.message;
+        errorMessage.style.display = 'block';
+      });
+    }
+
+    function loadAlunos(cursoId = "", nome = "") {
+      loadingSpinner.style.display = 'block';
+      errorMessageTable.style.display = 'none';
+      alunosTable.innerHTML = '';
+      let query = db.collection("alunos");
+      if (cursoId) query = query.where("curso", "==", cursoId);
+      query.get().then((querySnapshot) => {
+        if (querySnapshot.empty) {
+          alunosTable.innerHTML = '<tr><td colspan="4">Nenhum aluno encontrado.</td></tr>';
+          loadingSpinner.style.display = 'none';
+          return;
+        }
+        const filteredDocs = nome
+          ? querySnapshot.docs.filter(doc => doc.data().nome.toLowerCase().includes(nome.toLowerCase()))
+          : querySnapshot.docs;
+        filteredDocs.forEach((doc) => {
+          const aluno = doc.data();
+          db.collection("cursos").doc(aluno.curso).get().then((cursoDoc) => {
+            alunosTable.innerHTML += `
+              <tr class="slide-in">
+                <td>${aluno.nome}</td>
+                <td>${aluno.matricula}</td>
+                <td>${cursoDoc.data().nome}</td>
+                <td><button class="delete-btn" data-id="${doc.id}" aria-label="Excluir aluno">Excluir</button></td>
+              </tr>`;
+            attachDeleteListeners();
+          });
+        });
+        loadingSpinner.style.display = 'none';
+      }).catch(error => {
+        errorMessageTable.textContent = 'Erro ao carregar alunos: ' + error.message;
+        errorMessageTable.style.display = 'block';
+        loadingSpinner.style.display = 'none';
+      });
+    }
+
+    function attachDeleteListeners() {
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          if (confirm("Tem certeza que deseja excluir este aluno?")) {
+            db.collection("alunos").doc(id).delete()
+              .then(() => loadAlunos(filterCurso.value, filterNome.value))
+              .catch(error => {
+                errorMessageTable.textContent = 'Erro ao excluir aluno: ' + error.message;
+                errorMessageTable.style.display = 'block';
+              });
+          }
+        });
+      });
+    }
+
+    document.getElementById("aluno-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value.trim();
+      const matricula = document.getElementById("matricula").value.trim();
+      const curso = document.getElementById("curso").value;
+      if (!nome || !matricula || !curso) {
+        errorMessage.textContent = 'Preencha todos os campos.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      loadingSpinner.style.display = 'block';
+      errorMessage.style.display = 'none';
+      try {
+        const matriculaQuery = await db.collection("alunos").where("matricula", "==", matricula).get();
+        if (!matriculaQuery.empty) {
+          errorMessage.textContent = 'Matrícula já registrada.';
+          errorMessage.style.display = 'block';
+          loadingSpinner.style.display = 'none';
+          return;
+        }
+        await db.collection("alunos").add({ nome, matricula, curso });
+        loadAlunos();
+        document.getElementById("aluno-form").reset();
+        alert('Aluno adicionado com sucesso!');
+        loadingSpinner.style.display = 'none';
+      } catch (error) {
+        errorMessage.textContent = 'Erro ao adicionar aluno: ' + error.message;
+        errorMessage.style.display = 'block';
+        loadingSpinner.style.display = 'none';
+      }
+    });
+
+    exportCsvButton.addEventListener('click', () => {
+      let csv = 'Nome,Matrícula,Curso\n';
+      let query = db.collection("alunos");
+      if (filterCurso.value) query = query.where("curso", "==", filterCurso.value);
+      query.get().then((querySnapshot) => {
+        const promises = [];
+        querySnapshot.forEach((doc) => {
+          const aluno = doc.data();
+          promises.push(db.collection("cursos").doc(aluno.curso).get().then((cursoDoc) => {
+            csv += `"${aluno.nome}","${aluno.matricula}","${cursoDoc.data().nome}"\n`;
+          }));
+        });
+        Promise.all(promises).then(() => {
+          const blob = new Blob([csv], { type: 'text/csv' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'alunos.csv';
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+      });
+    });
+
+    filterButton.addEventListener('click', () => {
+      loadAlunos(filterCurso.value, filterNome.value);
+    });
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        loadCursos();
+        loadAlunos();
+      } else {
+        window.location.href = '/login.html';
+      }
+    });
+  </script>
+</body>
+</html>

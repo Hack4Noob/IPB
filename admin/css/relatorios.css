@@ -1,0 +1,343 @@
+/* /admin/css/relatorios.css */
+/* ESTILOS ESPECÍFICOS DA PÁGINA DE RELATÓRIOS */
+
+.relatorios-page {
+  --chart-height: 280px;
+  --card-radius: 16px;
+}
+
+/* CABEÇALHO */
+.relatorios-page .page-header {
+  background: 
+    linear-gradient(135deg, rgba(52, 152, 219, 0.92), rgba(41, 128, 185, 0.92)),
+    url('/images/escola-hero.jpg') center/cover no-repeat;
+  background-attachment: fixed;
+  color: var(--text-white);
+  text-align: center;
+  padding: var(--spacing-xxl) var(--spacing-md);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 1.2s ease-out;
+}
+
+.relatorios-page .page-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 30% 50%, rgba(255,255,255,0.15) 0%, transparent 50%),
+    radial-gradient(circle at 70% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+  z-index: 1;
+}
+
+.relatorios-page .page-header > * {
+  position: relative;
+  z-index: 2;
+}
+
+.relatorios-page .page-header h1 {
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  margin-bottom: var(--spacing-md);
+  font-weight: 700;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.relatorios-page .page-header p {
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  max-width: 700px;
+  margin: 0 auto;
+  opacity: 0.95;
+  line-height: 1.6;
+}
+
+/* GRÁFICOS */
+.relatorios-page .charts-container {
+  padding: var(--spacing-xl) var(--spacing-md);
+  background-color: var(--background-light);
+  animation: fadeIn 1s ease-out;
+}
+
+.relatorios-page .charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.relatorios-page .chart-card {
+  background: var(--background-white);
+  padding: var(--spacing-xl);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow), 0 2px 8px rgba(0,0,0,0.05);
+  border: 1px solid var(--border-color);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.relatorios-page .chart-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-hover), 0 8px 32px rgba(0,0,0,0.12);
+}
+
+.relatorios-page .chart-card h3 {
+  margin: 0 0 var(--spacing-lg);
+  color: var(--text-dark);
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.relatorios-page .chart-wrapper {
+  height: var(--chart-height);
+  position: relative;
+}
+
+/* TABELA */
+.relatorios-page .table-container {
+  padding: var(--spacing-xl) var(--spacing-md);
+  background-color: var(--background-light);
+  animation: fadeIn 1s ease-out;
+}
+
+.relatorios-page .table-container h2 {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  color: var(--text-dark);
+  position: relative;
+  font-weight: 600;
+}
+
+.relatorios-page .table-container h2::after {
+  content: '';
+  display: block;
+  width: 100px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+  margin: var(--spacing-md) auto 0;
+  border-radius: 2px;
+}
+
+.relatorios-page .filter-container {
+  max-width: 900px;
+  margin: 0 auto var(--spacing-xl);
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.relatorios-page .filter-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.relatorios-page .filter-group label {
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  display: block;
+  color: var(--text-dark);
+  font-size: 0.9rem;
+}
+
+.relatorios-page .filter-container select {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--background-white);
+  color: var(--text-dark);
+  transition: all 0.3s ease;
+}
+
+.relatorios-page .filter-container select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+.relatorios-page .actions-container {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.relatorios-page .btn {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.relatorios-page .btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: var(--text-white);
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.relatorios-page .btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.relatorios-page .table-wrapper {
+  background: var(--background-white);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow), 0 2px 8px rgba(0,0,0,0.05);
+  animation: fadeInUp 0.9s ease-out;
+}
+
+.relatorios-page table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.relatorios-page th,
+.relatorios-page td {
+  padding: var(--spacing-lg);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.3s ease;
+}
+
+.relatorios-page th {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: var(--text-white);
+  font-weight: 600;
+  font-size: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.relatorios-page tbody tr:hover {
+  background-color: rgba(52, 152, 219, 0.05);
+  transform: scale(1.005);
+  transition: all 0.3s ease;
+}
+
+.relatorios-page tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.relatorios-page .empty-state {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* LOADING */
+.relatorios-page #relatorios-loading {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-xl);
+  color: var(--text-light);
+  font-size: 1.1rem;
+}
+
+.relatorios-page #relatorios-loading.active {
+  display: flex;
+}
+
+.relatorios-page #relatorios-loading::before {
+  content: '';
+  width: 32px;
+  height: 32px;
+  border: 4px solid var(--border-color);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 12px;
+}
+
+/* ERRO */
+.relatorios-page .msg-error {
+  color: var(--accent-color);
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid var(--accent-color);
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  text-align: center;
+  margin: var(--spacing-md) 0;
+  font-weight: 500;
+  display: none;
+  animation: shake 0.5s ease-in-out;
+}
+
+.relatorios-page .msg-error:not(:empty) {
+  display: block;
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .relatorios-page .page-header {
+    padding: var(--spacing-xl) var(--spacing-md);
+    background-attachment: scroll;
+  }
+
+  .relatorios-page .charts-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .relatorios-page .chart-card {
+    padding: var(--spacing-lg);
+  }
+
+  .relatorios-page .filter-container {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .relatorios-page .filter-group,
+  .relatorios-page .actions-container {
+    width: 100%;
+  }
+
+  .relatorios-page .actions-container .btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 576px) {
+  .relatorios-page .chart-wrapper {
+    height: 220px;
+  }
+
+  .relatorios-page th,
+  .relatorios-page td {
+    padding: var(--spacing-md);
+    font-size: 0.9rem;
+  }
+}

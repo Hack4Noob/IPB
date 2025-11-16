@@ -1,0 +1,292 @@
+/* /secretaria/css/pagamentos.css */
+:root {
+  --primary-color: #3498db;
+  --primary-hover: #2980b9;
+  --accent-color: #e74c3c;
+  --accent-hover: #c0392b;
+  --text-white: #ffffff;
+  --text-light: #7f8c8d;
+  --background-light: #f9f9f9;
+  --shadow-color: rgba(0, 0, 0, 0.15);
+  --border-color: #e0e0e0;
+  --error-color: #d32f2f;
+  --border-radius: 8px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-light: #1a252f;
+    --text-light: #b0b0b0;
+    --border-color: #444444;
+    --error-color: #ef5350;
+  }
+}
+
+.page-header {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('/images/escola-hero.jpg');
+  background-size: cover;
+  background-position: center;
+  color: var(--text-white);
+  text-align: center;
+  padding: 60px 0;
+  position: relative;
+  animation: fadeIn 1s ease-in;
+}
+
+.page-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.page-header > * {
+  position: relative;
+  z-index: 2;
+}
+
+.page-header h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin-bottom: var(--spacing-md);
+}
+
+.page-header p {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+  max-width: 600px;
+  margin: 0 auto;
+  opacity: 0.9;
+}
+
+.form-container, .table-container {
+  padding: var(--spacing-xl) 0;
+  background-color: var(--background-light);
+  animation: fadeIn 1s ease-in;
+}
+
+.form-container h2, .table-container h2 {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  position: relative;
+}
+
+.form-container h2::after, .table-container h2::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 4px;
+  background-color: var(--primary-color);
+  margin: var(--spacing-md) auto 0;
+}
+
+form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+  background: var(--text-white);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+form label {
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm);
+}
+
+form input, form select {
+  width: 100%;
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  transition: border-color 0.3s ease, transform 0.2s ease;
+}
+
+form input:focus, form select:focus {
+  border-color: var(--primary-color);
+  transform: scale(1.02);
+}
+
+form .btn {
+  background-color: var(--primary-color);
+  color: var(--text-white);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+form .btn:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--text-white);
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  animation: fadeIn 1s ease-in;
+}
+
+th, td {
+  padding: var(--spacing-md);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  background-color: var(--primary-color);
+  color: var(--text-white);
+  font-weight: 600;
+}
+
+tr:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease;
+}
+
+tr.slide-in {
+  animation: slideIn 0.5s ease-in;
+}
+
+.delete-btn {
+  background-color: var(--accent-color);
+  color: var(--text-white);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.delete-btn:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+.filter-container {
+  max-width: 800px;
+  margin: 0 auto var(--spacing-lg);
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.filter-container input, .filter-container select {
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-base);
+  flex: 1;
+  transition: border-color 0.3s ease, transform 0.2s ease;
+}
+
+.filter-container input:focus, .filter-container select:focus {
+  border-color: var(--primary-color);
+  transform: scale(1.02);
+}
+
+.filter-container button, #export-csv {
+  background-color: var(--primary-color);
+  color: var(--text-white);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.filter-container button:hover, #export-csv:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.error-message {
+  color: var(--error-color);
+  font-size: 0.875rem;
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+  display: none;
+  animation: fadeIn 0.5s ease-in;
+}
+
+.error-message:not(.hidden) {
+  display: block;
+}
+
+#loading-spinner {
+  text-align: center;
+  font-size: 1rem;
+  color: var(--text-light);
+  margin: var(--spacing-lg) 0;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    padding: 40px 0;
+  }
+
+  .form-container, .table-container {
+    padding: var(--spacing-lg) 0;
+  }
+
+  table {
+    font-size: 0.875rem;
+  }
+
+  th, td {
+    padding: var(--spacing-sm);
+  }
+
+  .delete-btn {
+    padding: var(--spacing-sm);
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .page-header p {
+    font-size: 0.875rem;
+  }
+
+  .form-container h2, .table-container h2 {
+    font-size: 1.65rem;
+  }
+
+  .filter-container {
+    flex-direction: column;
+  }
+
+  .filter-container input, .filter-container select, .filter-container button, #export-csv {
+    width: 100%;
+  }
+}

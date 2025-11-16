@@ -1,0 +1,439 @@
+/* /admin/css/turmas.css */
+/* ESTILOS ESPECÍFICOS DA PÁGINA DE TURMAS */
+
+.turmas-page {
+  --form-max-width: 600px;
+  --card-radius: 16px;
+  --input-padding: 12px;
+}
+
+/* CABEÇALHO */
+.turmas-page .page-header {
+  background: 
+    linear-gradient(135deg, rgba(52, 152, 219, 0.92), rgba(41, 128, 185, 0.92)),
+    url('/images/escola-hero.jpg') center/cover no-repeat;
+  background-attachment: fixed;
+  color: var(--text-white);
+  text-align: center;
+  padding: var(--spacing-xxl) var(--spacing-md);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 1.2s ease-out;
+}
+
+.turmas-page .page-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 30% 50%, rgba(255,255,255,0.15) 0%, transparent 50%),
+    radial-gradient(circle at 70% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+  z-index: 1;
+}
+
+.turmas-page .page-header > * {
+  position: relative;
+  z-index: 2;
+}
+
+.turmas-page .page-header h1 {
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  margin-bottom: var(--spacing-md);
+  font-weight: 700;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.turmas-page .page-header p {
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  max-width: 700px;
+  margin: 0 auto;
+  opacity: 0.95;
+  line-height: 1.6;
+}
+
+/* FORMULÁRIO */
+.turmas-page .form-container {
+  padding: var(--spacing-xl) var(--spacing-md);
+  background-color: var(--background-light);
+  animation: fadeIn 1s ease-out;
+}
+
+.turmas-page .form-container h2 {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  color: var(--text-dark);
+  position: relative;
+  font-weight: 600;
+}
+
+.turmas-page .form-container h2::after {
+  content: '';
+  display: block;
+  width: 100px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+  margin: var(--spacing-md) auto 0;
+  border-radius: 2px;
+}
+
+.turmas-page .form-wrapper {
+  max-width: var(--form-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+  background: var(--background-white);
+  border-radius: var(--card-radius);
+  box-shadow: var(--shadow), 0 2px 8px rgba(0,0,0,0.05);
+  border: 1px solid var(--border-color);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.turmas-page .form-wrapper:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-hover), 0 8px 32px rgba(0,0,0,0.12);
+}
+
+.turmas-page .form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.turmas-page .form-group label {
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  display: block;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+}
+
+.turmas-page .form-group input,
+.turmas-page .form-group select {
+  width: 100%;
+  padding: var(--input-padding);
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--background-white);
+  color: var(--text-dark);
+  transition: all 0.3s ease;
+}
+
+.turmas-page .form-group input:focus,
+.turmas-page .form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
+  transform: scale(1.02);
+}
+
+.turmas-page .form-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237f8c8d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.turmas-page .btn {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.turmas-page .btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: var(--text-white);
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.turmas-page .btn-primary:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+.turmas-page .btn.success {
+  background-color: #27ae60;
+}
+
+.turmas-page .btn.success .btn-icon {
+  display: inline-block;
+  animation: checkBounce 0.6s ease;
+}
+
+/* TABELA */
+.turmas-page .table-container {
+  padding: var(--spacing-xl) var(--spacing-md);
+  background-color: var(--background-light);
+  animation: fadeIn 1s ease-out;
+}
+
+.turmas-page .table-container h2 {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  color: var(--text-dark);
+  position: relative;
+  font-weight: 600;
+}
+
+.turmas-page .table-container h2::after {
+  content: '';
+  display: block;
+  width: 100px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+  margin: var(--spacing-md) auto 0;
+  border-radius: 2px;
+}
+
+.turmas-page .filter-container {
+  max-width: 1000px;
+  margin: 0 auto var(--spacing-xl);
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.turmas-page .filter-group {
+  flex: 1;
+  min-width: 180px;
+}
+
+.turmas-page .filter-group label {
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  display: block;
+  color: var(--text-dark);
+  font-size: 0.9rem;
+}
+
+.turmas-page .filter-container input,
+.turmas-page .filter-container select {
+  width: 100%;
+  padding: var(--spacing-sm);
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--background-white);
+  color: var(--text-dark);
+  transition: all 0.3s ease;
+}
+
+.turmas-page .filter-container input:focus,
+.turmas-page .filter-container select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+}
+
+.turmas-page .actions-container {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.turmas-page .actions-container .btn {
+  flex: 1;
+  min-width: 100px;
+}
+
+.turmas-page .table-wrapper {
+  background: var(--background-white);
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  box-shadow: var(--shadow), 0 2px 8px rgba(0,0,0,0.05);
+  animation: fadeInUp 0.9s ease-out;
+}
+
+.turmas-page table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.turmas-page th,
+.turmas-page td {
+  padding: var(--spacing-lg);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.3s ease;
+}
+
+.turmas-page th {
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: var(--text-white);
+  font-weight: 600;
+  font-size: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.turmas-page tbody tr:hover {
+  background-color: rgba(52, 152, 219, 0.05);
+  transform: scale(1.005);
+  transition: all 0.3s ease;
+}
+
+.turmas-page tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.turmas-page .btn-danger {
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: var(--text-white);
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+}
+
+.turmas-page .btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.turmas-page .empty-state {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--text-light);
+  font-style: italic;
+}
+
+/* LOADING */
+.turmas-page #turmas-loading {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-xl);
+  color: var(--text-light);
+  font-size: 1.1rem;
+}
+
+.turmas-page #turmas-loading.active {
+  display: flex;
+}
+
+.turmas-page #turmas-loading::before {
+  content: '';
+  width: 32px;
+  height: 32px;
+  border: 4px solid var(--border-color);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 12px;
+}
+
+/* ERRO */
+.turmas-page .msg-error {
+  color: var(--accent-color);
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid var(--accent-color);
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  text-align: center;
+  margin: var(--spacing-md) 0;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: none;
+  animation: shake 0.5s ease-in-out;
+}
+
+.turmas-page .msg-error:not(:empty) {
+  display: block;
+}
+
+/* POPUP */
+.turmas-page .popup {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #ffffff;
+  color: #2c3e50;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10000;
+  font-weight: 500;
+  font-size: 1rem;
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;
+  max-width: 320px;
+  border-left: 5px solid;
+}
+
+.turmas-page .popup.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.turmas-page .popup.success { border-color: #27ae60; background: #eafaf1; }
+.turmas-page .popup.error { border-color: #e74c3c; background: #fdf2f2; }
+
+.turmas-page .popup-icon {
+  font-size: 1.5rem;
+  animation: bounceIn 0.6s ease;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.1); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes checkBounce {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-40px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .turmas-page .page-header { padding: var(--spacing-xl) var(--spacing-md); background-attachment: scroll; }
+  .turmas-page .form-container, .turmas-page .table-container { padding: var(--spacing-lg) var(--spacing-sm); }
+  .turmas-page .filter-container { flex-direction: column; gap: var(--spacing-sm); }
+  .turmas-page .filter-group, .turmas-page .actions-container { width: 100%; }
+  .turmas-page .actions-container .btn { flex: 1; }
+}
+
+@media (max-width: 576px) {
+  .turmas-page .form-wrapper { padding: var(--spacing-md); }
+  .turmas-page th, .turmas-page td { padding: var(--spacing-md); font-size: 0.9rem; }
+  .turmas-page .btn { font-size: 1rem; padding: var(--spacing-sm) var(--spacing-lg); }
+  .turmas-page .popup { bottom: 15px; right: 15px; left: 15px; max-width: none; transform: translateY(120%); }
+  .turmas-page .popup.show { transform: translateY(0); }
+}

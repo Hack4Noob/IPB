@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avisos - Professor | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/professor/css/avisos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head><!-- Adicionar um menu de configurações -->
+<li><a href="/professor/configuracoes.html">Configurações</a></li>
+<body>
+  <!-- Link de salto para acessibilidade -->
+  <a class="skip-link sr-only" href="#main">Pular para o conteúdo</a>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li><a href="/professor/dashboard.html">Dashboard</a></li>
+          <li><a href="/professor/turmas.html">Turmas</a></li>
+          <li><a href="/professor/notas.html">Notas</a></li>
+          <li><a href="/professor/presencas.html">Presenças</a></li>
+          <li><a href="/professor/avisos.html" class="active">Avisos</a></li>
+          <li><a href="/professor/estatisticas.html">Estatísticas</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <section class="page-header" id="main" tabindex="-1">
+    <div class="container">
+      <h1>Gerenciar Avisos</h1>
+      <p>Crie e gerencie avisos para os alunos.</p>
+    </div>
+  </section>
+  <section class="form-container">
+    <div class="container">
+      <h2>Criar Aviso</h2>
+      <form id="aviso-form">
+        <label for="titulo">Título</label>
+        <input type="text" id="titulo" placeholder="Digite o título do aviso" required>
+        <label for="mensagem">Mensagem</label>
+        <textarea id="mensagem" placeholder="Digite a mensagem do aviso" required></textarea>
+        <label for="destinatario">Destinatário</label>
+        <select id="destinatario" required>
+          <option value="">Selecione um aluno</option>
+        </select>
+        <button type="submit" class="btn">Publicar</button>
+      </form>
+      <div id="error-message" class="error-message" aria-live="assertive" tabindex="-1" style="display:none"></div>
+    </div>
+  </section>
+  <section class="table-container">
+    <div class="container">
+      <h2>Lista de Avisos</h2>
+      <div class="filter-container">
+        <select id="filter-destinatario">
+          <option value="">Todos os Alunos</option>
+        </select>
+        <input type="date" id="filter-data">
+        <button id="filter-button">Filtrar</button>
+        <button id="export-csv">Exportar CSV</button>
+      </div>
+      <div id="loading-spinner" class="loading-spinner" aria-live="polite" style="display:none;">Carregando avisos...</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Mensagem</th>
+            <th>Destinatário</th>
+            <th>Data</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="avisos-table"></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/content-manager.js"></script>
+  <script src="/js/data-manager.js"></script>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const avisosTable = document.getElementById("avisos-table");
+    const avisoForm = document.getElementById("aviso-form");
+    const destinatarioSelect = document.getElementById("destinatario");
+    const filterDestinatario = document.getElementById("filter-destinatario");
+    const filterData = document.getElementById("filter-data");
+    const filterButton = document.getElementById("filter-button");
+    const exportCsvButton = document.getElementById("export-csv");
+    const errorMessage = document.getElementById("error-message");
+    const loadingSpinner = document.getElementById("loading-spinner");
+
+    function showError(msg) {
+      errorMessage.textContent = msg;
+      errorMessage.style.display = 'block';
+      errorMessage.setAttribute('aria-live', 'assertive');
+      errorMessage.setAttribute('tabindex', '-1');
+      errorMessage.focus();
+    }
+    function hideError() {
+      errorMessage.textContent = '';
+      errorMessage.style.display = 'none';
+      errorMessage.removeAttribute('aria-live');
+      errorMessage.removeAttribute('tabindex');
+    }
+    avisoForm.addEventListener('input', hideError);
+
+    function showLoading() {
+      loadingSpinner.style.display = 'flex';
+    }
+    function hideLoading() {
+      loadingSpinner.style.display = 'none';
+    }
+
+    function loadAlunos() {
+      destinatarioSelect.innerHTML = `<option value="">Selecione um aluno</option>`;
+      filterDestinatario.innerHTML = `<option value="">Todos os Alunos</option>`;
+      db.collection("alunos").get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const aluno = doc.data();
+          destinatarioSelect.innerHTML += `<option value="${doc.id}">${aluno.nome}</option>`;
+          filterDestinatario.innerHTML += `<option value="${doc.id}">${aluno.nome}</option>`;
+        });
+      }).catch(error => {
+        showError('Erro ao carregar alunos: ' + error.message);
+      });
+    }
+
+    function formatAvisoDate(data) {
+      if (!data) return '';
+      if (data.toDate) return data.toDate().toLocaleDateString();
+      if (typeof data === 'string') return new Date(data).toLocaleDateString();
+      return '';
+    }
+
+    function loadAvisos(destinatarioId = "", data = "") {
+      showLoading();
+      hideError();
+      avisosTable.innerHTML = '';
+      let query = db.collection("avisos").where("professorId", "==", auth.currentUser.uid);
+      if (destinatarioId) query = query.where("destinatarioId", "==", destinatarioId);
+      if (data) query = query.where("data", "==", new Date(data).toISOString().split('T')[0]);
+      query.get().then((querySnapshot) => {
+        if (querySnapshot.empty) {
+          avisosTable.innerHTML = '<tr><td colspan="5">Nenhum aviso encontrado.</td></tr>';
+        }
+        const avisos = [];
+        querySnapshot.forEach((doc) => {
+          avisos.push({ id: doc.id, ...doc.data() });
+        });
+        // Carregar nomes dos alunos em lote
+        const alunoPromises = avisos.map(aviso =>
+          db.collection("alunos").doc(aviso.destinatarioId).get().then(alunoDoc => ({
+            ...aviso,
+            destinatarioNome: alunoDoc.exists ? alunoDoc.data().nome : 'Aluno removido'
+          }))
+        );
+        Promise.all(alunoPromises).then(avisosComNome => {
+          avisosComNome.forEach(aviso => {
+            avisosTable.innerHTML += `
+              <tr class="slide-in">
+                <td>${aviso.titulo}</td>
+                <td>${aviso.mensagem}</td>
+                <td>${aviso.destinatarioNome}</td>
+                <td>${formatAvisoDate(aviso.data)}</td>
+                <td><button class="delete-btn" data-id="${aviso.id}" aria-label="Excluir aviso">Excluir</button></td>
+              </tr>`;
+          });
+          attachDeleteListeners();
+          hideLoading();
+        });
+      }).catch(error => {
+        showError('Erro ao carregar avisos: ' + error.message);
+        hideLoading();
+      });
+    }
+
+    let deleteLock = false;
+    function attachDeleteListeners() {
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = () => {
+          if (deleteLock) return;
+          deleteLock = true;
+          const id = btn.getAttribute('data-id');
+          if (confirm("Tem certeza que deseja excluir este aviso?")) {
+            db.collection("avisos").doc(id).delete()
+              .then(() => {
+                loadAvisos(filterDestinatario.value, filterData.value);
+                hideError();
+              })
+              .catch(error => {
+                showError('Erro ao excluir aviso: ' + error.message);
+              })
+              .finally(() => { deleteLock = false; });
+          } else {
+            deleteLock = false;
+          }
+        };
+      });
+    }
+
+    let submitLock = false;
+    avisoForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (submitLock) return;
+      submitLock = true;
+      const titulo = document.getElementById("titulo").value.trim();
+      const mensagem = document.getElementById("mensagem").value.trim();
+      const destinatarioId = document.getElementById("destinatario").value;
+      if (!titulo || !mensagem || !destinatarioId) {
+        showError('Preencha todos os campos.');
+        submitLock = false;
+        return;
+      }
+      showLoading();
+      hideError();
+      db.collection("avisos").add({
+        titulo,
+        mensagem,
+        destinatarioId,
+        professorId: auth.currentUser.uid,
+        data: firebase.firestore.FieldValue.serverTimestamp(),
+        lido: false
+      }).then(() => {
+        loadAvisos();
+        avisoForm.reset();
+        alert('Aviso publicado com sucesso!');
+        hideLoading();
+      }).catch(error => {
+        showError('Erro ao publicar aviso: ' + error.message);
+        hideLoading();
+      }).finally(() => { submitLock = false; });
+    });
+
+    exportCsvButton.addEventListener('click', () => {
+      let csv = 'Título,Mensagem,Destinatário,Data\n';
+      db.collection("avisos").where("professorId", "==", auth.currentUser.uid).get().then((querySnapshot) => {
+        const promises = [];
+        querySnapshot.forEach((doc) => {
+          const aviso = doc.data();
+          promises.push(db.collection("alunos").doc(aviso.destinatarioId).get().then((alunoDoc) => {
+            const nome = alunoDoc.exists ? alunoDoc.data().nome : 'Aluno removido';
+            const dataStr = formatAvisoDate(aviso.data);
+            csv += `"${(aviso.titulo||'').replace(/"/g, '""')}","${(aviso.mensagem||'').replace(/"/g, '""')}","${nome.replace(/"/g, '""')}","${dataStr}"\n`;
+          }));
+        });
+        Promise.all(promises).then(() => {
+          const blob = new Blob([csv], { type: 'text/csv' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'avisos.csv';
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+      });
+    });
+
+    filterButton.addEventListener('click', () => {
+      loadAvisos(filterDestinatario.value, filterData.value);
+    });
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        loadAlunos();
+        loadAvisos();
+      } else {
+        window.location.href = '/login.html';
+      }
+    });
+  </script>
+</body>
+</html>

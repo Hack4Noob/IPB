@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Professor | IPG</title>
+  <meta name="description" content="Painel do professor — IPG. Resumo de turmas, alunos e avisos.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/professor/css/dashboard.css">
+</head>
+<body>
+  <!-- Link de salto para acessibilidade -->
+  <a class="skip-link sr-only" href="#main">Pular para o conteúdo</a>
+
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li class="home-link">
+            <a href="/professor/index.html" title="Voltar para página principal">
+              <svg class="home-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <path d="M9 22V12h6v10"/>
+              </svg>
+              Início
+            </a>
+          </li>
+          <li><a href="/professor/dashboard.html" class="active">Dashboard</a></li>
+          <li><a href="/professor/turmas.html">Turmas</a></li>
+          <li><a href="/professor/notas.html">Notas</a></li>
+          <li><a href="/professor/presencas.html">Presenças</a></li>
+          <li><a href="/professor/avisos.html">Avisos</a></li>
+          <li><a href="/professor/estatisticas.html">Estatísticas</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <!-- Ícone Hamburger (inicial) e X (para fechar) -->
+        <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12h18"/>
+          <path d="M3 6h18"/>
+          <path d="M3 18h18"/>
+        </svg>
+        <svg class="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+          <path d="M18 6L6 18"/>
+          <path d="M6 6l12 12"/>
+        </svg>
+      </div>
+    </div>
+  </header>
+  <section class="page-header" id="main" tabindex="-1">
+    <div class="container">
+      <h1 id="welcome-message">Bem-vindo, Professor</h1>
+      <p>Gerencie suas turmas, notas, presenças e avisos.</p>
+    </div>
+  </section>
+  <section class="dashboard-content">
+    <div class="container">
+      <h2>Resumo</h2>
+      <div class="filter-container">
+        <select id="filter-periodo">
+          <option value="all">Todos os Períodos</option>
+          <option value="1">1º Trimestre</option>
+          <option value="2">2º Trimestre</option>
+          <option value="3">3º Trimestre</option>
+        </select>
+        <button id="filter-button">Filtrar</button>
+      </div>
+      <!-- spinner e mensagem de erro com aria -->
+      <div id="loading-spinner" class="loading-spinner" aria-live="polite" style="display:none">Carregando resumo...</div>
+      <div id="error-message" class="error-message" role="alert" aria-live="assertive" tabindex="-1" style="display:none"></div>
+      <div class="numeros-grid" id="numeros-grid">
+        <div class="numero-item">
+          <h3 id="turmas-count">0</h3>
+          <p>Turmas Ativas</p>
+        </div>
+        <div class="numero-item">
+          <h3 id="alunos-count">0</h3>
+          <p>Alunos</p>
+        </div>
+        <div class="numero-item">
+          <h3 id="avisos-count">0</h3>
+          <p>Avisos Pendentes</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Tornar estes scripts deferidos para melhor performance -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js" defer></script>
+  <script src="/js/firebase-config.js" defer></script>
+  <script src="/js/inicialize.js" defer></script>
+  <script src="/js/ui-manager.js" defer></script>
+  <script src="/js/auth-manager.js" defer></script>
+  <script src="/js/content-manager.js" defer></script>
+  <script src="/js/data-manager.js" defer></script>
+
+  <script>
+    // filepath logic: inline script (modificado) - lida com auth.onAuthStateChanged e chamadas Firestore de forma robusta
+    (function () {
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+      const welcomeMessage = document.getElementById("welcome-message");
+      const turmasCount = document.getElementById("turmas-count");
+      const alunosCount = document.getElementById("alunos-count");
+      const avisosCount = document.getElementById("avisos-count");
+      const filterPeriodo = document.getElementById("filter-periodo");
+      const filterButton = document.getElementById("filter-button");
+      const errorMessage = document.getElementById("error-message");
+      const loadingSpinner = document.getElementById("loading-spinner");
+
+      function showLoading() { loadingSpinner.style.display = 'block'; }
+      function hideLoading() { loadingSpinner.style.display = 'none'; }
+      function showError(msg) {
+        errorMessage.textContent = msg;
+        errorMessage.style.display = 'block';
+        errorMessage.setAttribute('tabindex','-1');
+        errorMessage.focus();
+      }
+      function hideError() {
+        errorMessage.textContent = '';
+        errorMessage.style.display = 'none';
+        errorMessage.removeAttribute('tabindex');
+      }
+
+      async function loadDashboard(periodo = "all", user) {
+        if (!user || !user.uid) {
+          showError('Usuário não autenticado.');
+          return;
+        }
+        const uid = user.uid;
+        hideError();
+        showLoading();
+        try {
+          const promises = [
+            // turmas
+            (periodo === "all"
+              ? db.collection("turmas").where("professorId","==", uid).get()
+              : db.collection("turmas").where("professorId","==", uid).where("trimestre","==", periodo).get()
+            ).then(q => { turmasCount.textContent = q.size; }),
+
+            // alunos (contagem global; ajuste se desejar por professor)
+            db.collection("alunos").get().then(q => { alunosCount.textContent = q.size; }),
+
+            // avisos pendentes do professor
+            db.collection("avisos").where("professorId","==", uid).where("lido","==", false).get().then(q => { avisosCount.textContent = q.size; })
+          ];
+          await Promise.all(promises);
+        } catch (err) {
+          console.error('Erro ao carregar dashboard:', err);
+          showError('Erro ao carregar resumo: ' + (err.message || 'Tente novamente mais tarde.'));
+        } finally {
+          hideLoading();
+        }
+      }
+
+      // reagir ao estado de autenticação
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          welcomeMessage.textContent = `Bem-vindo, ${user.displayName || 'Professor'}`;
+          // carrega o dashboard usando o user atual
+          loadDashboard('all', user);
+        } else {
+          window.location.href = '/login.html';
+        }
+      });
+
+      filterButton.addEventListener('click', () => {
+        // garantir que o estado do usuário esteja pronto
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+          showError('Usuário não autenticado. Recarregue a página.');
+          return;
+        }
+        loadDashboard(filterPeriodo.value, currentUser);
+      });
+
+      // esconder erro quando usuário interage
+      document.addEventListener('input', () => hideError());
+    })();
+  </script>
+</body>
+</html>

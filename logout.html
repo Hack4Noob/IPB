@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logout - IMPB Gestão Escolar</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+   <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    firebase.auth().signOut().then(() => {
+      window.location.href = "login.html";
+    }).catch((error) => {
+      alert("Erro ao sair: " + error.message);
+    });
+  </script>
+</body>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <h1><i class="fas fa-graduation-cap"></i> IMPB - Gestão Escolar</h1>
+      </div>
+    </div>
+  </header>
+  <section class="form-container">
+    <div class="container">
+      <h2>Saindo...</h2>
+      <p>Você está sendo desconectado do sistema.</p>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IMPB Instituto Médio Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+</body>
+</html>

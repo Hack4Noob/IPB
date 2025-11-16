@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Admin | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/admin/css/dashboard.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+  <!-- ============================================= -->
+  <!-- HEADER COM SIDEBAR VERTICAL (DESKTOP) -->
+  <!-- ============================================= -->
+  <header class="header-with-sidebar">
+    <div class="sidebar">
+      <div class="logo-sidebar">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG</h1>
+      </div>
+      <nav class="nav-sidebar">
+        <ul>
+          <li><a href="/index.html">
+            <i class="fas fa-home"></i> Início
+          </a></li>
+          <li><a href="/admin/dashboard.html" class="active">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+          </a></li>
+          <li><a href="/admin/cursos.html">
+            <i class="fas fa-book"></i> Cursos
+          </a></li>
+          <li><a href="/admin/turmas.html">
+            <i class="fas fa-users"></i> Turmas
+          </a></li>
+          <li><a href="/admin/disciplinas.html">
+            <i class="fas fa-graduation-cap"></i> Disciplinas
+          </a></li>
+          <li><a href="/admin/relatorios.html">
+            <i class="fas fa-chart-bar"></i> Relatórios
+          </a></li>
+          <li><a href="/admin/configuracoes.html">
+            <i class="fas fa-cog"></i> Configurações
+          </a></li>
+          <li><a href="/admin/usuarios.html">
+            <i class="fas fa-user-shield"></i> Usuários
+          </a></li>
+          <li><a href="/logout.html">
+            <i class="fas fa-sign-out-alt"></i> Sair
+          </a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- HEADER MOBILE -->
+    <div class="header-mobile">
+      <div class="container">
+        <div class="logo">
+          <img src="/images/logo.png" alt="IPG Logo">
+          <h1>IPG - Gestão Escolar</h1>
+        </div>
+        <nav class="nav-mobile">
+          <ul>
+            <li><a href="/index.html">Início</a></li>
+            <li><a href="/admin/dashboard.html" class="active">Dashboard</a></li>
+            <li><a href="/admin/cursos.html">Cursos</a></li>
+            <li><a href="/admin/turmas.html">Turmas</a></li>
+            <li><a href="/admin/disciplinas.html">Disciplinas</a></li>
+            <li><a href="/admin/relatorios.html">Relatórios</a></li>
+            <li><a href="/admin/configuracoes.html">Configurações</a></li>
+            <li><a href="/admin/usuarios.html">Usuários</a></li>
+            <li><a href="/logout.html">Sair</a></li>
+          </ul>
+        </nav>
+        <div class="mobile-menu"><i class="fas fa-bars"></i></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================= -->
+  <!-- CONTEÚDO PRINCIPAL -->
+  <!-- ============================================= -->
+  <main class="dashboard-page">
+
+    <section class="page-header">
+      <div class="container">
+        <h1>Bem-vindo, Administrador</h1>
+        <p>Gerencie cursos, turmas, disciplinas e usuários do sistema.</p>
+      </div>
+    </section>
+
+    <section class="dashboard-content">
+      <div class="container">
+        <h2>Resumo</h2>
+
+        <div id="dashboard-loading">Carregando dados...</div>
+        <div id="dashboard-error" class="msg-error"></div>
+
+        <div class="numeros-grid">
+          <div class="numero-item">
+            <h3 id="alunos-count">0</h3>
+            <p>Alunos Matriculados</p>
+          </div>
+          <div class="numero-item">
+            <h3 id="professores-count">0</h3>
+            <p>Professores</p>
+          </div>
+          <div class="numero-item">
+            <h3 id="cursos-count">0</h3>
+            <p>Cursos Ativos</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>© 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+
+  <!-- MENU MOBILE JS -->
+  <script>
+    const mobileMenu = document.querySelector('.mobile-menu');
+    const navMobile = document.querySelector('.nav-mobile');
+    const overlay = document.createElement('div');
+    overlay.className = 'menu-overlay';
+    document.body.appendChild(overlay);
+
+    mobileMenu.addEventListener('click', () => {
+      navMobile.classList.toggle('active');
+      overlay.classList.toggle('active');
+      mobileMenu.innerHTML = navMobile.classList.contains('active') 
+        ? '<i class="fas fa-times"></i>' 
+        : '<i class="fas fa-bars"></i>';
+    });
+
+    overlay.addEventListener('click', () => {
+      navMobile.classList.remove('active');
+      overlay.classList.remove('active');
+      mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+    });
+
+    document.querySelectorAll('.nav-mobile a').forEach(link => {
+      link.addEventListener('click', () => {
+        navMobile.classList.remove('active');
+        overlay.classList.remove('active');
+        mobileMenu.innerHTML = '<i class="fas fa-bars"></i>';
+      });
+    });
+  </script>
+
+  <!-- DASHBOARD JS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+
+      const alunosCount = document.getElementById("alunos-count");
+      const professoresCount = document.getElementById("professores-count");
+      const cursosCount = document.getElementById("cursos-count");
+      const errorDiv = document.getElementById("dashboard-error");
+      const loading = document.getElementById("dashboard-loading");
+
+      function showError(msg) {
+        errorDiv.textContent = msg;
+      }
+
+      async function verifyAdminAccess(uid) {
+        try {
+          const userDoc = await db.collection("usuarios").doc(uid).get();
+          
+          if (!userDoc.exists) {
+            console.error('[SECURITY] Admin user doc does not exist');
+            return false;
+          }
+          
+          const userData = userDoc.data();
+          
+          // Validar campos críticos
+          if (userData.role !== "admin") {
+            console.error('[SECURITY] User is not admin:', userData.role);
+            return false;
+          }
+          
+          // Verificar se conta está ativa
+          if (userData.active === false) {
+            console.error('[SECURITY] Admin account is inactive');
+            return false;
+          }
+          
+          return true;
+        } catch (error) {
+          console.error('[SECURITY] Error verifying admin access:', error);
+          return false;
+        }
+      }
+
+      async function loadDashboard() {
+        loading.classList.add('active');
+        errorDiv.textContent = '';
+
+        try {
+          const [alunosSnap, profsSnap, cursosSnap] = await Promise.all([
+            db.collection("alunos").get(),
+            db.collection("usuarios").where("role", "==", "professor").get(),
+            db.collection("cursos").get()
+          ]);
+
+          alunosCount.textContent = alunosSnap.size;
+          professoresCount.textContent = profsSnap.size;
+          cursosCount.textContent = cursosSnap.size;
+        } catch (err) {
+          showError('Erro ao carregar dados: ' + err.message);
+          console.error('[SECURITY] Dashboard load error:', err);
+        } finally {
+          loading.classList.remove('active');
+        }
+      }
+
+      auth.onAuthStateChanged(async user => {
+        if (!user) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        const hasAdminAccess = await verifyAdminAccess(user.uid);
+        
+        if (!hasAdminAccess) {
+          console.error('[SECURITY] Unauthorized access attempt');
+          showError('Acesso negado. Apenas administradores podem acessar.');
+          
+          // Fazer logout seguro
+          setTimeout(() => {
+            auth.signOut().then(() => {
+              window.location.href = '/login.html';
+            });
+          }, 2000);
+          return;
+        }
+        
+        loadDashboard();
+      });
+    });
+  </script>
+</body>
+</html>

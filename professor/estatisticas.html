@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estatísticas - Professor | IPG</title>
+  <meta name="description" content="Estatísticas de notas e presenças — painel do professor IPG.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/professor/css/estatisticas.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <!-- Link de salto para acessibilidade -->
+  <a class="skip-link sr-only" href="#main">Pular para o conteúdo</a>
+
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li><a href="/professor/dashboard.html">Dashboard</a></li>
+          <li><a href="/professor/turmas.html">Turmas</a></li>
+          <li><a href="/professor/notas.html">Notas</a></li>
+          <li><a href="/professor/presencas.html">Presenças</a></li>
+          <li><a href="/professor/avisos.html">Avisos</a></li>
+          <li><a href="/professor/estatisticas.html" class="active">Estatísticas</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <section class="page-header" id="main" tabindex="-1">
+    <div class="container">
+      <h1>Estatísticas</h1>
+      <p>Visualize estatísticas sobre notas e presenças.</p>
+    </div>
+  </section>
+  <section class="table-container">
+    <div class="container">
+      <h2>Estatísticas de Notas</h2>
+      <div class="filter-container">
+        <label for="filter-disciplina" class="sr-only">Filtrar por disciplina</label>
+        <select id="filter-disciplina" aria-label="Filtrar por disciplina">
+          <option value="">Todas as Disciplinas</option>
+        </select>
+        <label for="filter-trimestre" class="sr-only">Filtrar por trimestre</label>
+        <select id="filter-trimestre" aria-label="Filtrar por trimestre">
+          <option value="">Todos os Trimestres</option>
+          <option value="1">1º Trimestre</option>
+          <option value="2">2º Trimestre</option>
+          <option value="3">3º Trimestre</option>
+        </select>
+        <button id="filter-button">Filtrar</button>
+        <button id="export-csv">Exportar CSV</button>
+      </div>
+
+      <div id="loading-spinner" class="loading-spinner" aria-live="polite" style="display:none">Carregando estatísticas...</div>
+      <div id="error-message" class="error-message" role="alert" aria-live="assertive" tabindex="-1" style="display:none"></div>
+
+      <table role="table" aria-label="Estatísticas de notas">
+        <thead>
+          <tr>
+            <th scope="col">Disciplina</th>
+            <th scope="col">Média</th>
+            <th scope="col">Aprovados</th>
+            <th scope="col">Reprovados</th>
+          </tr>
+        </thead>
+        <tbody id="estatisticas-table"></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- Tornar scripts deferidos para melhor performance -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js" defer></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js" defer></script>
+  <script src="/js/firebase-config.js" defer></script>
+  <script src="/js/inicialize.js" defer></script>
+  <script src="/js/ui-manager.js" defer></script>
+  <script src="/js/auth-manager.js" defer></script>
+  <script src="/js/content-manager.js" defer></script>
+  <script src="/js/data-manager.js" defer></script>
+
+  <script>
+    (function () {
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+      const estatisticasTable = document.getElementById("estatisticas-table");
+      const filterDisciplina = document.getElementById("filter-disciplina");
+      const filterTrimestre = document.getElementById("filter-trimestre");
+      const filterButton = document.getElementById("filter-button");
+      const exportCsvButton = document.getElementById("export-csv");
+      const errorMessage = document.getElementById("error-message");
+      const loadingSpinner = document.getElementById("loading-spinner");
+
+      function showLoading() { loadingSpinner.style.display = 'block'; }
+      function hideLoading() { loadingSpinner.style.display = 'none'; }
+      function showError(msg) {
+        errorMessage.textContent = msg;
+        errorMessage.style.display = 'block';
+        errorMessage.focus();
+      }
+      function hideError() {
+        errorMessage.textContent = '';
+        errorMessage.style.display = 'none';
+      }
+
+      // Esconder erro quando usuário interage
+      document.addEventListener('input', () => hideError());
+
+      // Carrega somente as disciplinas do professor (melhora performance)
+      async function loadDisciplinas(uid) {
+        try {
+          filterDisciplina.innerHTML = `<option value="">Todas as Disciplinas</option>`;
+          const snapshot = await db.collection("disciplinas").where("professorId","==", uid).get();
+          if (snapshot.empty) {
+            filterDisciplina.innerHTML += `<option value="">(Nenhuma disciplina registrada)</option>`;
+            return;
+          }
+          snapshot.forEach(doc => {
+            const d = doc.data();
+            filterDisciplina.innerHTML += `<option value="${doc.id}">${(d.nome||'Sem nome').replace(/</g,'&lt;')}</option>`;
+          });
+        } catch (err) {
+          console.error('Erro ao carregar disciplinas:', err);
+          showError('Erro ao carregar disciplinas: ' + (err.message || 'Tente novamente mais tarde.'));
+        }
+      }
+
+      // Calcula e mostra estatísticas
+      async function loadEstatisticas(uid, disciplinaId = '', trimestre = '') {
+        if (!uid) { showError('Usuário não autenticado.'); return; }
+        showLoading();
+        hideError();
+        estatisticasTable.innerHTML = '';
+        try {
+          // Buscar disciplinas (filtradas pelo professor, e opcionalmente por id)
+          let disciplinasQuery = db.collection("disciplinas").where("professorId","==", uid);
+          if (disciplinaId) disciplinasQuery = disciplinasQuery.where(firebase.firestore.FieldPath.documentId(), "==", disciplinaId);
+          const disciplinasSnap = await disciplinasQuery.get();
+          if (disciplinasSnap.empty) {
+            estatisticasTable.innerHTML = '<tr><td colspan="4">Nenhuma estatística encontrada.</td></tr>';
+            return;
+          }
+
+          const rows = await Promise.all(disciplinasSnap.docs.map(async (doc) => {
+            const disciplina = doc.data();
+            let notasQuery = db.collection("notas").where("disciplinaId","==", doc.id);
+            if (trimestre) notasQuery = notasQuery.where("trimestre","==", trimestre);
+            const notasSnap = await notasQuery.get();
+            let total = 0, aprovados = 0, reprovados = 0;
+            notasSnap.forEach(notaDoc => {
+              const valor = Number(notaDoc.data().valor) || 0;
+              total += valor;
+              if (valor >= 10) aprovados++; else reprovados++;
+            });
+            const media = notasSnap.size ? (total / notasSnap.size).toFixed(2) : '0.00';
+            return {
+              nome: disciplina.nome || '(sem nome)',
+              media,
+              aprovados,
+              reprovados
+            };
+          }));
+
+          // Montar tabela
+          if (rows.length === 0) {
+            estatisticasTable.innerHTML = '<tr><td colspan="4">Nenhuma estatística encontrada.</td></tr>';
+          } else {
+            estatisticasTable.innerHTML = rows.map(r => `
+              <tr class="slide-in">
+                <td>${String(r.nome).replace(/</g,'&lt;')}</td>
+                <td>${r.media}</td>
+                <td>${r.aprovados}</td>
+                <td>${r.reprovados}</td>
+              </tr>
+            `).join('');
+          }
+        } catch (err) {
+          console.error('Erro ao carregar estatísticas:', err);
+          showError('Erro ao carregar estatísticas: ' + (err.message || 'Tente novamente mais tarde.'));
+        } finally {
+          hideLoading();
+        }
+      }
+
+      // Exportar CSV com escape correto
+      function escapeCsvField(v) {
+        if (v == null) return '';
+        const s = String(v);
+        if (/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+        return s;
+      }
+
+      exportCsvButton.addEventListener('click', async () => {
+        const currentUser = auth.currentUser;
+        if (!currentUser) { showError('Usuário não autenticado.'); return; }
+        showLoading();
+        try {
+          const disciplinasSnap = await db.collection("disciplinas").where("professorId","==", currentUser.uid).get();
+          const rows = [];
+          for (const doc of disciplinasSnap.docs) {
+            let notasQuery = db.collection("notas").where("disciplinaId","==", doc.id);
+            if (filterTrimestre.value) notasQuery = notasQuery.where("trimestre","==", filterTrimestre.value);
+            const notasSnap = await notasQuery.get();
+            let total = 0, aprovados = 0, reprovados = 0;
+            notasSnap.forEach(notaDoc => {
+              const valor = Number(notaDoc.data().valor) || 0;
+              total += valor;
+              if (valor >= 10) aprovados++; else reprovados++;
+            });
+            const media = notasSnap.size ? (total / notasSnap.size).toFixed(2) : '0.00';
+            rows.push([doc.data().nome || '(sem nome)', media, aprovados, reprovados]);
+          }
+          if (rows.length === 0) {
+            showError('Nenhuma estatística disponível para exportação.');
+            return;
+          }
+          const header = ['Disciplina','Média','Aprovados','Reprovados'];
+          const csv = [header.map(escapeCsvField).join(','), ...rows.map(r => r.map(escapeCsvField).join(','))].join('\n');
+          const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'estatisticas.csv';
+          a.click();
+          URL.revokeObjectURL(url);
+        } catch (err) {
+          console.error('Erro ao exportar CSV:', err);
+          showError('Erro ao exportar CSV: ' + (err.message || 'Tente novamente mais tarde.'));
+        } finally {
+          hideLoading();
+        }
+      });
+
+      // Filtrar
+      filterButton.addEventListener('click', () => {
+        const currentUser = auth.currentUser;
+        if (!currentUser) { showError('Usuário não autenticado. Recarregue a página.'); return; }
+        loadEstatisticas(currentUser.uid, filterDisciplina.value, filterTrimestre.value);
+      });
+
+      // Observa autenticação e inicializa
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          loadDisciplinas(user.uid);
+          loadEstatisticas(user.uid);
+        } else {
+          window.location.href = '/login.html';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

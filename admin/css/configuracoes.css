@@ -1,0 +1,277 @@
+/* /admin/css/configuracoes.css */
+/* ESTILOS ESPECÍFICOS DA PÁGINA DE CONFIGURAÇÕES */
+
+.config-page {
+  --form-max-width: 600px;
+  --input-padding: 12px;
+}
+
+/* CABEÇALHO */
+.config-page .page-header {
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.82)), 
+              url('/images/escola-hero.jpg') center/cover no-repeat;
+  color: var(--text-white);
+  text-align: center;
+  padding: var(--spacing-xl) var(--spacing-md);
+  position: relative;
+  isolation: isolate;
+  animation: fadeIn 1s ease-in;
+}
+
+.config-page .page-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1;
+}
+
+.config-page .page-header > * {
+  position: relative;
+  z-index: 2;
+}
+
+.config-page .page-header h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin-bottom: var(--spacing-md);
+  font-weight: 700;
+}
+
+.config-page .page-header p {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+  max-width: 600px;
+  margin: 0 auto;
+  opacity: 0.95;
+}
+
+/* FORMULÁRIO */
+.config-page .form-container {
+  padding: var(--spacing-xl) var(--spacing-md);
+  background-color: var(--background-light);
+  animation: fadeIn 1s ease-in;
+}
+
+.config-page .form-container h2 {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  position: relative;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.config-page .form-container h2::after {
+  content: '';
+  display: block;
+  width: 80px;
+  height: 4px;
+  background-color: var(--primary-color);
+  margin: var(--spacing-md) auto 0;
+  border-radius: 2px;
+}
+
+.config-page form {
+  max-width: var(--form-max-width);
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+  background-color: var(--background-white);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px var(--shadow-color);
+  isolation: isolate;
+}
+
+.config-page form label {
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  display: block;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+}
+
+.config-page form input {
+  width: 100%;
+  padding: var(--input-padding);
+  margin-bottom: var(--spacing-md);
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--background-white);
+  color: var(--text-dark);
+  transition: all 0.3s ease;
+}
+
+.config-page form input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15);
+  outline: none;
+  transform: scale(1.02);
+}
+
+.config-page form input:disabled {
+  background-color: var(--background-light);
+  color: var(--text-light);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.config-page form .btn {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.config-page form .btn:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+}
+
+.config-page form .btn.success {
+  background-color: #27ae60;
+}
+
+.config-page form .btn.success .btn-icon {
+  display: inline-block;
+  animation: checkBounce 0.6s ease;
+}
+
+.config-page form .btn:disabled {
+  background-color: var(--text-light);
+  color: var(--text-white);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ERRO */
+.config-page .msg-error {
+  color: var(--accent-color);
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid var(--accent-color);
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  text-align: center;
+  margin: var(--spacing-md) 0;
+  font-weight: 500;
+  font-size: 0.9rem;
+  display: none;
+  animation: shake 0.5s ease-in-out;
+}
+
+.config-page .msg-error:not(:empty) {
+  display: block;
+}
+
+/* LOADING */
+.config-page #config-loading {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-xl);
+  color: var(--text-light);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.config-page #config-loading.active {
+  display: flex;
+}
+
+.config-page #config-loading::before {
+  content: '';
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--text-light);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 12px;
+}
+
+/* POPUP */
+.config-page .popup {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #ffffff;
+  color: #2c3e50;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 10000;
+  font-weight: 500;
+  font-size: 1rem;
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;
+  max-width: 320px;
+  border-left: 5px solid;
+}
+
+.config-page .popup.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.config-page .popup.success { border-color: #27ae60; background: #eafaf1; }
+.config-page .popup.error { border-color: #e74c3c; background: #fdf2f2; }
+
+.config-page .popup-icon {
+  font-size: 1.5rem;
+  animation: bounceIn 0.6s ease;
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.1); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes checkBounce {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .config-page .page-header { padding: var(--spacing-lg) var(--spacing-md); }
+  .config-page .form-container { padding: var(--spacing-lg) var(--spacing-sm); }
+}
+
+@media (max-width: 576px) {
+  .config-page form { padding: var(--spacing-md); }
+  .config-page .btn { font-size: 1rem; padding: var(--spacing-sm) var(--spacing-lg); }
+  .config-page .popup {
+    bottom: 15px;
+    right: 15px;
+    left: 15px;
+    max-width: none;
+    transform: translateY(120%);
+  }
+  .config-page .popup.show { transform: translateY(0); }
+}

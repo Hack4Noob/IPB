@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagamentos - Secretaria | IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/secretaria/css/pagamentos.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Gestão Escolar</h1>
+      </div>
+      <nav>
+        <ul id="nav-list">
+          <li><a href="/secretaria/dashboard.html">Dashboard</a></li>
+          <li><a href="/secretaria/alunos.html">Alunos</a></li>
+          <li><a href="/secretaria/documentos.html">Documentos</a></li>
+          <li><a href="/secretaria/pagamentos.html" class="active">Pagamentos</a></li>
+          <li><a href="/secretaria/relatorios.html">Relatórios</a></li>
+          <li><a href="/logout.html">Sair</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <section class="page-header">
+    <div class="container">
+      <h1>Gerenciar Pagamentos</h1>
+      <p>Registre e acompanhe os pagamentos dos alunos.</p>
+    </div>
+  </section>
+  <section class="form-container">
+    <div class="container">
+      <h2>Registrar Pagamento</h2>
+      <form id="pagamento-form">
+        <label for="aluno">Aluno</label>
+        <select id="aluno" required>
+          <option value="">Selecione um aluno</option>
+        </select>
+        <label for="valor">Valor</label>
+        <input type="number" id="valor" placeholder="Digite o valor" min="0.01" step="0.01" required>
+        <label for="status">Status</label>
+        <select id="status" required>
+          <option value="pendente">Pendente</option>
+          <option value="pago">Pago</option>
+        </select>
+        <button type="submit" class="btn" aria-label="Registrar pagamento">Registrar</button>
+      </form>
+      <div id="error-message" class="error-message"></div>
+    </div>
+  </section>
+  <section class="table-container">
+    <div class="container">
+      <h2>Lista de Pagamentos</h2>
+      <div class="filter-container">
+        <select id="filter-aluno">
+          <option value="">Todos os Alunos</option>
+        </select>
+        <select id="filter-status">
+          <option value="">Todos os Status</option>
+          <option value="pendente">Pendente</option>
+          <option value="pago">Pago</option>
+        </select>
+        <input type="date" id="filter-data">
+        <button id="filter-button" aria-label="Filtrar pagamentos">Filtrar</button>
+        <button id="export-csv" aria-label="Exportar para CSV">Exportar CSV</button>
+      </div>
+      <div id="loading-spinner">Carregando pagamentos...</div>
+      <div id="error-message-table" class="error-message"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>Aluno</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Data</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="pagamentos-table"></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 IPG Instituto Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/content-manager.js"></script>
+  <script src="/js/data-manager.js"></script>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const pagamentosTable = document.getElementById("pagamentos-table");
+    const alunoSelect = document.getElementById("aluno");
+    const filterAluno = document.getElementById("filter-aluno");
+    const filterStatus = document.getElementById("filter-status");
+    const filterData = document.getElementById("filter-data");
+    const filterButton = document.getElementById("filter-button");
+    const exportCsvButton = document.getElementById("export-csv");
+    const errorMessage = document.getElementById("error-message");
+    const errorMessageTable = document.getElementById("error-message-table");
+    const loadingSpinner = document.getElementById("loading-spinner");
+
+    function loadAlunos() {
+      db.collection("alunos").get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const aluno = doc.data();
+          alunoSelect.innerHTML += `<option value="${doc.id}">${aluno.nome}</option>`;
+          filterAluno.innerHTML += `<option value="${doc.id}">${aluno.nome}</option>`;
+        });
+      }).catch(error => {
+        errorMessage.textContent = 'Erro ao carregar alunos: ' + error.message;
+        errorMessage.style.display = 'block';
+      });
+    }
+
+    function loadPagamentos(alunoId = "", status = "", data = "") {
+      loadingSpinner.style.display = 'block';
+      errorMessageTable.style.display = 'none';
+      pagamentosTable.innerHTML = '';
+      let query = db.collection("pagamentos");
+      if (alunoId) query = query.where("alunoId", "==", alunoId);
+      if (status) query = query.where("status", "==", status);
+      if (data) query = query.where("data", ">=", data).where("data", "<=", data + "T23:59:59");
+      query.get().then((querySnapshot) => {
+        if (querySnapshot.empty) {
+          pagamentosTable.innerHTML = '<tr><td colspan="5">Nenhum pagamento encontrado.</td></tr>';
+          loadingSpinner.style.display = 'none';
+          return;
+        }
+        querySnapshot.forEach((doc) => {
+          const pagamento = doc.data();
+          db.collection("alunos").doc(pagamento.alunoId).get().then((alunoDoc) => {
+            pagamentosTable.innerHTML += `
+              <tr class="slide-in">
+                <td>${alunoDoc.data().nome}</td>
+                <td>${parseFloat(pagamento.valor).toFixed(2)}</td>
+                <td>${pagamento.status}</td>
+                <td>${new Date(pagamento.data).toLocaleDateString()}</td>
+                <td><button class="delete-btn" data-id="${doc.id}" aria-label="Excluir pagamento">Excluir</button></td>
+              </tr>`;
+            attachDeleteListeners();
+          });
+        });
+        loadingSpinner.style.display = 'none';
+      }).catch(error => {
+        errorMessageTable.textContent = 'Erro ao carregar pagamentos: ' + error.message;
+        errorMessageTable.style.display = 'block';
+        loadingSpinner.style.display = 'none';
+      });
+    }
+
+    function attachDeleteListeners() {
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.getAttribute('data-id');
+          if (confirm("Tem certeza que deseja excluir este pagamento?")) {
+            db.collection("pagamentos").doc(id).delete()
+              .then(() => loadPagamentos(filterAluno.value, filterStatus.value, filterData.value))
+              .catch(error => {
+                errorMessageTable.textContent = 'Erro ao excluir pagamento: ' + error.message;
+                errorMessageTable.style.display = 'block';
+              });
+          }
+        });
+      });
+    }
+
+    document.getElementById("pagamento-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const alunoId = document.getElementById("aluno").value;
+      const valor = parseFloat(document.getElementById("valor").value);
+      const status = document.getElementById("status").value;
+      if (!alunoId || isNaN(valor) || valor <= 0 || !status) {
+        errorMessage.textContent = 'Preencha todos os campos corretamente. Valor deve ser maior que 0.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      loadingSpinner.style.display = 'block';
+      errorMessage.style.display = 'none';
+      try {
+        await db.collection("pagamentos").add({
+          alunoId,
+          valor,
+          status,
+          data: new Date().toISOString()
+        });
+        loadPagamentos();
+        document.getElementById("pagamento-form").reset();
+        alert('Pagamento registrado com sucesso!');
+        loadingSpinner.style.display = 'none';
+      } catch (error) {
+        errorMessage.textContent = 'Erro ao registrar pagamento: ' + error.message;
+        errorMessage.style.display = 'block';
+        loadingSpinner.style.display = 'none';
+      }
+    });
+
+    exportCsvButton.addEventListener('click', () => {
+      let csv = 'Aluno,Valor,Status,Data\n';
+      let query = db.collection("pagamentos");
+      if (filterAluno.value) query = query.where("alunoId", "==", filterAluno.value);
+      if (filterStatus.value) query = query.where("status", "==", filterStatus.value);
+      if (filterData.value) query = query.where("data", ">=", filterData.value).where("data", "<=", filterData.value + "T23:59:59");
+      query.get().then((querySnapshot) => {
+        const promises = [];
+        querySnapshot.forEach((doc) => {
+          const pagamento = doc.data();
+          promises.push(db.collection("alunos").doc(pagamento.alunoId).get().then((alunoDoc) => {
+            csv += `"${alunoDoc.data().nome}",${parseFloat(pagamento.valor).toFixed(2)},"${pagamento.status}","${new Date(pagamento.data).toLocaleDateString()}"\n`;
+          }));
+        });
+        Promise.all(promises).then(() => {
+          const blob = new Blob([csv], { type: 'text/csv' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'pagamentos.csv';
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+      });
+    });
+
+    filterButton.addEventListener('click', () => {
+      loadPagamentos(filterAluno.value, filterStatus.value, filterData.value);
+    });
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        loadAlunos();
+        loadPagamentos();
+      } else {
+        window.location.href = '/login.html';
+      }
+    });
+  </script>
+</body>
+</html>

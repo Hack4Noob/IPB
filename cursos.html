@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cursos técnicos e ensino médio no IPG - Instituto Politécnico da Graça, Benguela, Angola.">
+  <meta name="keywords" content="IPG, cursos técnicos, ensino médio, Benguela, Angola">
+  <meta name="author" content="IPG Instituto Politécnico da Graça">
+  <title>Cursos - IPG</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="stylesheet" href="/css/cursos.css">
+  <link rel="stylesheet" href="/css/mobile-menu-unified.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt="IPG Logo">
+        <h1>IPG - Instituto Politécnico da Graça</h1>
+      </div>
+      <nav>
+        <ul id="nav-list" role="navigation">
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/sobre.html">Sobre</a></li>
+          <li><a href="/cursos.html" class="active" aria-current="page">Cursos</a></li>
+          <li><a href="/cadastro.html">Cadastre-se</a></li>
+          <li><a href="/contato.html">Contato</a></li>
+          <li><a href="/associacao/dashboard.html">Associação</a></li>
+          <li><a href="/admin/dashboard.html">Área Admin</a></li>
+          <li id="user-area"><a href="/login.html" aria-label="Área do Usuário">Área do Usuário</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu" aria-label="Abrir menu de navegação">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>Nossos Cursos</h1>
+        <p>Explore nossa oferta de ensino médio e cursos técnicos integrados.</p>
+      </div>
+    </section>
+    <section class="cursos">
+      <div class="container">
+        <div class="filtro-cursos">
+          <button class="filtro-btn active" data-curso="todos" aria-label="Mostrar todos os cursos">Todos</button>
+          <button class="filtro-btn" data-curso="medio" aria-label="Mostrar cursos de ensino médio">Ensino Médio</button>
+          <button class="filtro-btn" data-curso="tecnico" aria-label="Mostrar cursos técnicos">Técnico Integrado</button>
+        </div>
+        <div class="cursos-grid" id="cursos-container"></div>
+        <div id="cursos-loading" class="loading-spinner">Carregando cursos...</div>
+        <div id="cursos-error" class="error-message"></div>
+      </div>
+    </section>
+    <section class="diferenciais">
+      <div class="container">
+        <h2>Por que Escolher o IPG?</h2>
+        <div class="diferenciais-grid fade-in">
+          <div class="diferencial-item">
+            <i class="fas fa-chalkboard-teacher" aria-hidden="true"></i>
+            <h3>Professores Qualificados</h3>
+            <p>Equipe de professores com formação avançada e experiência prática.</p>
+          </div>
+          <div class="diferencial-item">
+            <i class="fas fa-flask" aria-hidden="true"></i>
+            <h3>Laboratórios Modernos</h3>
+            <p>Infraestrutura de ponta para práticas técnicas e aprendizado prático.</p>
+          </div>
+          <div class="diferencial-item">
+            <i class="fas fa-briefcase" aria-hidden="true"></i>
+            <h3>Inserção no Mercado</h3>
+            <p>Cursos alinhados às demandas das indústrias locais e nacionais.</p>
+          </div>
+          <div class="diferencial-item">
+            <i class="fas fa-globe" aria-hidden="true"></i>
+            <h3>Sustentabilidade</h3>
+            <p>Foco em formação ética e sustentável para o futuro de Angola.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="cta-cursos">
+      <div class="container">
+        <h2>Junte-se ao IPG</h2>
+        <p>Inscreva-se agora e comece sua jornada para uma carreira de sucesso!</p>
+        <a href="/contato.html" class="btn" aria-label="Inscreva-se agora">Inscreva-se</a>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="container">
+      <div class="footer-col">
+        <h3>IPG</h3>
+        <p>Rua da Educação, 123 - Bairro Nossa Senhora da Graça</p>
+        <p>Cidade de Benguela, Angola</p>
+        <p>CEP: 12345-678</p>
+      </div>
+      <div class="footer-col">
+        <h3>Horário de Funcionamento</h3>
+        <p>Segunda a Sexta: 7h às 15h</p>
+        <p>Sábado: 8h às 12h</p>
+        <p>Domingo: Fechado</p>
+      </div>
+      <div class="footer-col">
+        <h3>Redes Sociais</h3>
+        <div class="social-links">
+          <a href="https://facebook.com/ipg-angola" aria-label="Facebook do IPG"><i class="fab fa-facebook"></i></a>
+          <a href="https://instagram.com/ipg-angola" aria-label="Instagram do IPG"><i class="fab fa-instagram"></i></a>
+          <a href="https://twitter.com/ipg-angola" aria-label="Twitter do IPG"><i class="fab fa-twitter"></i></a>
+          <a href="https://youtube.com/ipg-angola" aria-label="YouTube do IPG"><i class="fab fa-youtube"></i></a>
+        </div>
+        <p><a href="mailto:contato@ipg-angola.com" aria-label="Enviar e-mail para o IPG">contato@ipg-angola.com</a></p>
+        <p>(+244) 940525856</p>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2025 IPG Instituto  Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/content-manager.js"></script>
+  <script src="/js/data-manager.js"></script>
+  <script src="/js/mobile-menu.js" defer></script>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const cursosContainer = document.getElementById('cursos-container');
+    const cursosLoading = document.getElementById('cursos-loading');
+    const cursosError = document.getElementById('cursos-error');
+
+    function loadCursos(tipo = 'todos') {
+      cursosLoading.style.display = 'block';
+      cursosError.style.display = 'none';
+      cursosContainer.innerHTML = '';
+      let query = db.collection('cursos');
+      if (tipo !== 'todos') {
+        query = query.where('tipo', '==', tipo);
+      }
+      query.get()
+        .then((querySnapshot) => {
+          if (querySnapshot.empty) {
+            cursosContainer.innerHTML = '<p>Nenhum curso disponível.</p>';
+            cursosLoading.style.display = 'none';
+            return;
+          }
+          querySnapshot.forEach((doc) => {
+            const curso = doc.data();
+            cursosContainer.innerHTML += `
+              <div class="curso-card slide-in" data-curso="${curso.tipo}">
+                <div class="curso-img">
+                  <img src="${curso.imagem || '/images/curso-placeholder.jpg'}" alt="${curso.nome}" loading="lazy">
+                </div>
+                <div class="curso-info">
+                  <h3>${curso.nome}</h3>
+                  <p>${curso.descricao}</p>
+                  <div class="curso-meta">
+                    <span><i class="fas fa-clock" aria-hidden="true"></i> ${curso.duracao} anos</span>
+                    <span><i class="fas fa-users" aria-hidden="true"></i> ${curso.capacidade} alunos/turma</span>
+                  </div>
+                  <a href="/curso-detalhe.html?id=${doc.id}" class="btn-curso" aria-label="Saiba mais sobre ${curso.nome}">Saiba Mais</a>
+                </div>
+              </div>`;
+          });
+          cursosLoading.style.display = 'none';
+        })
+        .catch((error) => {
+          cursosError.textContent = 'Erro ao carregar cursos: ' + error.message;
+          cursosError.style.display = 'block';
+          cursosLoading.style.display = 'none';
+        });
+    }
+
+    document.querySelectorAll('.filtro-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.filtro-btn').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        const cursoTipo = button.getAttribute('data-curso');
+        loadCursos(cursoTipo);
+      });
+    });
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        db.collection('usuarios').doc(user.uid).get().then((doc) => {
+          if (doc.exists) {
+            const userData = doc.data();
+            document.getElementById('user-area').innerHTML = `<a href="/dashboard.html" aria-label="Acessar dashboard">Minha Área</a>`;
+          }
+        });
+      }
+      loadCursos();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Entre em contato com o  IPG - Instituto Politécnico da Graça, Benguela, Angola.">
+  <meta name="keywords" content=", contato, Benguela, Angola, educação técnica">
+  <meta name="author" content=" Instituto Médio Politécnico da Graça">
+  <title>Contato - </title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/contato.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">
+        <img src="/images/logo.png" alt=" Logo">
+        <h1>IPG - Instituto Politécnico da Graça</h1>
+      </div>
+      <nav>
+        <ul id="nav-list" role="navigation">
+          <li><a href="/index.html">Home</a></li>
+          <li><a href="/sobre.html">Sobre</a></li>
+          <li><a href="/cursos.html">Cursos</a></li>
+          <li><a href="/cadastro.html">Cadastre-se</a></li>
+          <li><a href="/contato.html" class="active" aria-current="page">Contato</a></li>
+          <li><a href="/associacao/dashboard.html">Associação</a></li>
+          <li><a href="/admin/dashboard.html">Área Admin</a></li>
+          <li id="user-area"><a href="/login.html" aria-label="Área do Usuário">Área do Usuário</a></li>
+        </ul>
+      </nav>
+      <div class="mobile-menu" aria-label="Abrir menu de navegação">
+        <i class="fas fa-bars"></i>
+      </div>
+    </div>
+  </header>
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <h1>Entre em Contato</h1>
+        <p>Tire suas dúvidas ou agende uma visita.</p>
+      </div>
+    </section>
+    <section class="contato">
+      <div class="container">
+        <div class="contato-grid fade-in">
+          <div class="contato-info">
+            <h2>Informações de Contato</h2>
+            <div class="info-item">
+              <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+              <div>
+                <h3>Endereço</h3>
+                <p>Rua da Educação, 123 - Bairro Nossa Senhora da Graça</p>
+                <p>Cidade de Benguela, Angola - CEP: 12345-678</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-phone-alt" aria-hidden="true"></i>
+              <div>
+                <h3>Telefones</h3>
+                <p>Secretaria: (+244) 940525856</p>
+                <p>Diretoria: (+244) 954001124</p>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-envelope" aria-hidden="true"></i>
+              <div>
+                <h3>E-mails</h3>
+                <p>Geral: <a href="mailto:contato@ipg-angola.com">contato@-angola.com</a></p>
+                <p>Matrículas: <a href="mailto:matriculas@ipg-angola.com">matriculas@-angola.com</a></p>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="fas fa-clock" aria-hidden="true"></i>
+              <div>
+                <h3>Horário de Atendimento</h3>
+                <p>Segunda a Sexta: 7h às 15h</p>
+                <p>Sábado: 8h às 12h</p>
+              </div>
+            </div>
+          </div>
+          <div class="contato-form">
+            <h2>Envie uma Mensagem</h2>
+            <form id="form-contato">
+              <div class="form-group">
+                <label for="nome">Nome Completo</label>
+                <input type="text" id="nome" name="nome" required aria-required="true">
+              </div>
+              <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" required aria-required="true">
+              </div>
+              <div class="form-group">
+                <label for="telefone">Telefone</label>
+                <input type="tel" id="telefone" name="telefone">
+              </div>
+              <div class="form-group">
+                <label for="assunto">Assunto</label>
+                <select id="assunto" name="assunto" required aria-required="true">
+                  <option value="duvida">Dúvida</option>
+                  <option value="matricula">Matrícula</option>
+                  <option value="reclamacao">Reclamação</option>
+                  <option value="sugestao">Sugestão</option>
+                  <option value="outro">Outro</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="mensagem">Mensagem</label>
+                <textarea id="mensagem" name="mensagem" rows="5" required aria-required="true"></textarea>
+              </div>
+              <button type="submit" class="btn" aria-label="Enviar mensagem">Enviar Mensagem</button>
+              <div id="form-message" class="form-message"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="mapa">
+      <div class="container">
+        <h2>Onde Estamos</h2>
+        <div class="mapa-container fade-in">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3940.357711276992!2d13.404143614701054!3d-12.581104491139414!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1b6e8b2f5e2c6f3b%3A0x2f4e5e2f5e2c6f3b!2sBenguela%2C%20Angola!5e0!3m2!1spt-PT!2sao!4v1698673186785!5m2!1spt-PT!2sao"
+            width="100%"
+            height="450"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            aria-label="Mapa da localização do IPG em Benguela, Angola">
+          </iframe>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <div class="container">
+      <div class="footer-col">
+        <h3></h3>
+        <p>Rua da Educação, 123 - Bairro Nossa Senhora da Graça</p>
+        <p>Cidade de Benguela, Angola</p>
+        <p>CEP: 12345-678</p>
+      </div>
+      <div class="footer-col">
+        <h3>Horário de Funcionamento</h3>
+        <p>Segunda a Sexta: 7h às 15h</p>
+        <p>Sábado: 8h às 12h</p>
+        <p>Domingo: Fechado</p>
+      </div>
+      <div class="footer-col">
+        <h3>Redes Sociais</h3>
+        <div class="social-links">
+          <a href="https://facebook.com/-angola" aria-label="Facebook do "><i class="fab fa-facebook"></i></a>
+          <a href="https://instagram.com/-angola" aria-label="Instagram do "><i class="fab fa-instagram"></i></a>
+          <a href="https://twitter.com/-angola" aria-label="Twitter do "><i class="fab fa-twitter"></i></a>
+          <a href="https://youtube.com/-angola" aria-label="YouTube do "><i class="fab fa-youtube"></i></a>
+        </div>
+        <p><a href="mailto:contato@-angola.com" aria-label="Enviar e-mail para o ">contato@-angola.com</a></p>
+        <p>(+244) 940525856</p>
+      </div>
+    </div>
+    <div class="copyright">
+      <p>&copy; 2025  Instituto Médio Politécnico da Graça. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/inicialize.js"></script>
+  <script src="/js/ui-manager.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/content-manager.js"></script>
+  <script src="/js/data-manager.js"></script>
+  <script>
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const form = document.getElementById('form-contato');
+    const formMessage = document.getElementById('form-message');
+
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('nome').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const telefone = document.getElementById('telefone').value.trim();
+      const assunto = document.getElementById('assunto').value;
+      const mensagem = document.getElementById('mensagem').value.trim();
+
+      if (!nome || !email || !mensagem) {
+        formMessage.textContent = 'Por favor, preencha todos os campos obrigatórios.';
+        formMessage.classList.add('error');
+        return;
+      }
+
+      if (!validateEmail(email)) {
+        formMessage.textContent = 'Por favor, insira um e-mail válido.';
+        formMessage.classList.add('error');
+        return;
+      }
+
+      formMessage.textContent = 'Enviando mensagem...';
+      formMessage.classList.remove('error');
+      formMessage.classList.add('success');
+
+      db.collection('mensagens').add({
+        nome,
+        email,
+        telefone,
+        assunto,
+        mensagem,
+        data: firebase.firestore.FieldValue.serverTimestamp(),
+        status: 'pendente'
+      })
+        .then(() => {
+          formMessage.textContent = 'Mensagem enviada com sucesso! Entraremos em contato em breve.';
+          formMessage.classList.add('success');
+          form.reset();
+          setTimeout(() => {
+            formMessage.textContent = '';
+            formMessage.classList.remove('success');
+          }, 5000);
+        })
+        .catch((error) => {
+          formMessage.textContent = 'Erro ao enviar mensagem: ' + error.message;
+          formMessage.classList.add('error');
+        });
+    });
+
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        db.collection('usuarios').doc(user.uid).get().then((doc) => {
+          if (doc.exists) {
+            document.getElementById('user-area').innerHTML = `<a href="/dashboard.html" aria-label="Acessar dashboard">Minha Área</a>`;
+          }
+        });
+      }
+    });
+
+    const mobileMenuButton = document.querySelector('.mobile-menu');
+    const navList = document.getElementById('nav-list');
+    if (mobileMenuButton && navList) {
+      mobileMenuButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        navList.classList.toggle('active');
+        const icon = mobileMenuButton.querySelector('i');
+        if (icon) {
+          icon.classList.toggle('fa-bars');
+          icon.classList.toggle('fa-times');
+        }
+      });
+      document.querySelectorAll('nav a').forEach(link => {
+        link.addEventListener('click', () => {
+          if (navList.classList.contains('active')) {
+            navList.classList.remove('active');
+            const icon = mobileMenuButton.querySelector('i');
+            if (icon) {
+              icon.classList.remove('fa-times');
+              icon.classList.add('fa-bars');
+            }
+          }
+        });
+      });
+      document.addEventListener('click', (e) => {
+        if (navList.classList.contains('active') && !navList.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+          navList.classList.remove('active');
+          const icon = mobileMenuButton.querySelector('i');
+          if (icon) {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+          }
+        }
+      });
+      window.addEventListener('resize', () => {
+        if (window.innerWidth > 768 && navList.classList.contains('active')) {
+          navList.classList.remove('active');
+          const icon = mobileMenuButton.querySelector('i');
+          if (icon) {
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
